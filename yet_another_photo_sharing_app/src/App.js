@@ -2,20 +2,19 @@ import React from "react";
 import { render } from "react-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Post from './Post.js';
+import posts from './StaticPosts.js';
+import CircularProgress from '@mui/material/CircularProgress';
 
 class App extends React.Component {
   constructor() {
 	super();
-	this.state = {items: Array.from({length: 20})};
+	this.state = {items: posts};
   }
-	
-	
-  fetchMoreData = () => {
-    // a fake async api call like which sends
-    // 20 more records in 1.5 secs
+   	
+  fetchMorePosts = () => {
     setTimeout(() => {
       this.setState({
-        items: this.state.items.concat(Array.from({ length: 20 }))
+        items: this.state.items.concat(posts)
       });
     }, 1500);
   };
@@ -30,18 +29,18 @@ class App extends React.Component {
 	
         <InfiniteScroll
           dataLength={this.state.items.length}
-          next={this.fetchMoreData}
+          next={this.fetchMorePosts}
           hasMore={true}
-          loader={<h4>Loading...</h4>}
+          loader={<h4> Loading </h4>}
         >
-          {this.state.items.map((i, index) => (
+          {this.state.items.map((post, index) => (
 		<Post 
-		  image={"https://static.parade.com/wp-content/uploads/2021/07/ted-lasso-season-3.jpg"} 
-		  title={"A title"}
-		  dateString={"May 20, 2022"}
+		  image={post.image}
+		  title={post.title}
+		  dateString={post.dateString}
 		  name={index} key={index}
-		  avatarImage={"https://cdn10.phillymag.com/wp-content/uploads/2014/07/PW-blake-lively.jpg"}
-		  postSummary={"Hello fellas!"}
+		  avatarImage={post.avatarImage}
+		  postSummary={post.summary}
 		  />
 	  ))
 	  }

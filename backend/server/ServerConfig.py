@@ -1,0 +1,6 @@
+SERVER_URL = "127.0.0.1:8000"
+IMAGE_DIR = "/home/peterjochem/Desktop/PhotoSharingApp/backend/database/images/"
+DB_USERNAME="user"
+DB_PASSWORD="admin"
+DB_HOST="localhost:54320"
+DB_NAME="finstagram"

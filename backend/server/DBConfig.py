@@ -1,4 +1,4 @@
-db_username="user"
-db_password="admin"
-db_host="localhost:54320"
-db_name="finstagram"
+DB_USERNAME="user"
+DB_PASSWORD="admin"
+DB_HOST="localhost:54320"
+DB_NAME="finstagram"
