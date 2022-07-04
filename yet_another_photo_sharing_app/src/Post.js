@@ -36,25 +36,25 @@ export default function Post(props) {
     <Card sx={{ maxWidth: 445 }}>
       <CardHeader
         avatar={
-          <Avatar alt="username" src={props.avatarImage} />    
+          <Avatar alt="username" src={props.avatar_url} />    
         }
         action={
           <IconButton aria-label="settings">
             <MoreVertIcon />
           </IconButton>
         }
-        title={props.title}
+        title={props.username}
         subheader={props.dateString}
       />
       <CardMedia
         component="img"
         height="290"
-        image={props.image}
+        image={props.image_url}
 	alt="Post Unavailable"
       />
       <CardContent>
         <Typography variant="body2" color="black">
-        	{props.postSummary}
+        	{props.caption}
 	</Typography>
       </CardContent>
       <CardActions disableSpacing>

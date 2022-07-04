@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import FastAPI, HTTPException, File, Form, UploadFile
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 import sqlalchemy as db
 from sqlalchemy import ForeignKey, Integer, String, Time
 from sqlalchemy.sql import func
@@ -10,8 +11,22 @@ from Post import Post
 from User import User
 import uuid
 import time
+import imageio as iio
+from fastapi.responses import FileResponse
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 engine = db.create_engine(f"postgresql+pg8000://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
 metadata = db.MetaData()
 
@@ -118,7 +133,7 @@ def create_likes_table():
     likes = db.Table(
       'likes', metadata,
       db.Column('id', String, primary_key=True),
-      db.Column('post_id', String, ForeignKey(post.c.id)),
+      db.Column('post_id', Integer, ForeignKey(post.c.id)),
       db.Column('liker_username', String, ForeignKey(user.c.username)),
       db.Column('date', Time),
     )
@@ -165,7 +180,35 @@ def create_new_user(new_user: User):
     avatar_url = new_user.avatar_url
     query = db.insert(user).values(username=username, password=password, avatar_url=avatar_url) 
     connection.execute(query)
+
+# FIX Me - should this be a patch?
+@app.post("/set_avatar", status_code=200)
+async def upadte_users_avatar(username: str, image_file: UploadFile):
+    """ Set a user's avatar
+        
+        Args:
+            FIX ME 
+    """
+
+    if not does_user_exist(username):
+        raise HTTPException(status_code=404, detail=f"User does not exist with username {username}")
     
+    image_file.filename = f"{uuid.uuid4()}.jpg"
+    contents = await image_file.read() # FIX ME - read more about why I need await here
+    with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
+        f.write(contents)
+
+    # Update the database
+    connection = engine.connect()
+    metadata = db.MetaData()
+    user = db.Table('user', metadata, autoload=True, autoload_with=engine)
+
+    get_image_endpoint = "/get_image"
+    avatar_url = f"http://{SERVER_URL}{get_image_endpoint}?image_name={image_file.filename}" 
+    query = db.update(user).values(avatar_url=avatar_url).where(user.columns.username == username)
+    connection.execute(query)
+
+
 
 @app.get("/get_all_users", status_code=200)
 def get_all_users() -> List[User]:
@@ -186,27 +229,27 @@ def get_all_users() -> List[User]:
     
     return users
 
-"""
-app.get("/get_users_avatar_file", status_code=200)
-def get_users_avatar_file(avatar: str) -> str:
-    """
+@app.get("/get_users_avatar_url", status_code=200)
+def get_users_avatar_url(username: str) -> str:
+    """ Docstring here """
 
-    """
-
-    if not does_user_exist(username):
-        raise HTTPException(status_code=400, detail=f"User does not exist")
-    
     connection = engine.connect()
     metadata = db.MetaData()
+    
     user = db.Table('user', metadata, autoload=True, autoload_with=engine)
     query = db.select([user.c.avatar_url]).where((user.c.username == username))
+    
     results = connection.execute(query).fetchall()
+    if results is None or len(results) == 0:
+        raise HTTPException(status_code=400, detail=f"User does not exist") 
+    
     return results[0][0]
-""" 
 
-@app.get("/get_users_own_posts", status_code=200)
-def get_users_own_posts(username: str) -> List[Post]:
-    """ Get all the posts made by the user
+     
+
+@app.get("/get_posts_made_by_user", status_code=200)
+def get_posts_made_by_user(username: str) -> List[Post]:
+    """ Get the posts made by the user with the given username
         
         Args:
             username (str) - username of finstagram user
@@ -219,17 +262,27 @@ def get_users_own_posts(username: str) -> List[Post]:
     metadata = db.MetaData()
     post = db.Table('post', metadata, autoload=True, autoload_with=engine)
     
-    avatar_url = get_users_avatar_url(username) 
     query = db.select([post.c.user, post.c.date, post.c.image_url, post.c.caption]).where((post.c.user == username))
     results = connection.execute(query).fetchall()
     
     posts = []
     for result in results:
         poster_username, date, image_url, caption = result
+        avatar_url = get_users_avatar_url(poster_username)
+        
         post_content = {'avatar_url': avatar_url, 'username': poster_username, 'date': date, 'image_url': image_url, 'caption': caption}
         posts.append(post_content)
 
     return posts
+
+@app.get("/get_image", status_code=200)
+def get_image(image_name: str):
+    
+    # FIX ME - check if the file exists
+
+    file_path = f"{IMAGE_DIR}{image_name}"
+    return FileResponse(file_path)
+
 
 @app.post("/create_post", status_code=200)
 async def post(username: str, caption: str, image_file: UploadFile):
@@ -255,7 +308,8 @@ async def post(username: str, caption: str, image_file: UploadFile):
     metadata = db.MetaData()
     post = db.Table('post', metadata, autoload=True, autoload_with=engine)
      
-    image_url = f"{SERVER_URL}{IMAGE_DIR}{image_file.filename}"
+    get_image_endpoint = "/get_image"
+    image_url = f"http://{SERVER_URL}{get_image_endpoint}?image_name={image_file.filename}"
     query = db.insert(post).values(user=username, date=func.now(), image_url=image_url, caption=caption)
     connection.execute(query)
 
