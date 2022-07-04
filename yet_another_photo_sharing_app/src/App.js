@@ -11,7 +11,9 @@ class App extends React.Component {
 	super();
 	
 	this.fetched_posts = [];
-	this.state = {items: this.fetched_posts};
+	this.num_posts_to_add = 3;
+	this.display_index = this.num_posts_to_add;
+	this.state = {items: []};
   	this.get_all_posts = this.get_all_posts.bind(this);
   	this.componentDidMount = this.componentDidMount.bind(this); 
   }	
@@ -23,16 +25,24 @@ class App extends React.Component {
   get_all_posts() {
 	let username = "peter";
 	let url = `http://${SERVER_IP}:${SERVER_PORT}/get_posts_made_by_user?username=${username}`; 
-	console.log(url);
-	fetch(url).then(response => response.json()).then((json) => this.setState({items: json}));
+	console.log("get all posts ran");
+	fetch(url).then(response => response.json()).then((json) => {
+			this.fetched_posts = json;
+			let copy_fetched_posts = [...this.fetched_posts];
+			this.setState({items: copy_fetched_posts.splice(0, this.display_index)});
+		}
+	);
   }
 
   fetchMorePosts = () => {
-    setTimeout(() => {
-      this.setState({
-        items: this.state.items //.concat(posts)
-      });
-    }, 1500);
+     
+     console.log("more posts ran");
+     let copy_fetched_posts = [...this.fetched_posts];
+     let start_index = this.display_index;
+     let end_index = Math.min(this.fetched_posts.length, this.display_index + this.num_posts_to_add);
+     let posts_to_add = copy_fetched_posts.splice(start_index, end_index);
+     this.setState({items: this.state.items.concat(posts_to_add)});
+     this.display_index += this.num_posts_to_add;
   };
 
   render() {
@@ -46,7 +56,7 @@ class App extends React.Component {
         <InfiniteScroll
           dataLength={this.state.items.length}
           next={this.fetchMorePosts}
-          hasMore={true}
+          hasMore={this.display_index < this.fetched_posts.length}
           loader={<h4> Loading </h4>}
         >
           {this.state.items.map((post, index) => (
