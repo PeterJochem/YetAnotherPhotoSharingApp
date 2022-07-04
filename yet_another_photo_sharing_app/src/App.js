@@ -20,6 +20,7 @@ class App extends React.Component {
   
   componentDidMount() {
   	this.get_all_posts(); 
+  	document.title = "Finstagram";
   }
 
   get_all_posts() {
@@ -35,8 +36,6 @@ class App extends React.Component {
   }
 
   fetchMorePosts = () => {
-     
-     console.log("more posts ran");
      let copy_fetched_posts = [...this.fetched_posts];
      let start_index = this.display_index;
      let end_index = Math.min(this.fetched_posts.length, this.display_index + this.num_posts_to_add);
@@ -48,10 +47,9 @@ class App extends React.Component {
   render() {
     return (
       <div style = {{ display: 'flex',
-                     justifyContent: 'center',
-                     alignItems: 'center'
-                  }}
-	>
+                      justifyContent: 'center',
+                      alignItems: 'center'
+               }}>
 	
         <InfiniteScroll
           dataLength={this.state.items.length}

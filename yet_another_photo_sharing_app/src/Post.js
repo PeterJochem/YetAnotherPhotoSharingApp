@@ -53,7 +53,7 @@ export default function Post(props) {
 	alt="Post Unavailable"
       />
       <CardContent>
-        <Typography variant="body2" color="black">
+        <Typography variant="caption" sx={{fontSize: '100%'}} color="black" align="left" >
         	{props.caption}
 	</Typography>
       </CardContent>

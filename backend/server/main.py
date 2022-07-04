@@ -208,6 +208,34 @@ async def upadte_users_avatar(username: str, image_file: UploadFile):
     query = db.update(user).values(avatar_url=avatar_url).where(user.columns.username == username)
     connection.execute(query)
 
+@app.post("/create_post", status_code=200)
+async def post(username: str, caption: str, image_file: UploadFile):
+    """ Add the post for the user with the given username
+        
+        Args:
+            username (str) - user to add post for
+            caption (str) - user's caption for their photo
+            image_file (FastAPI.UploadFile) - image file to post
+    """
+
+    if not does_user_exist(username):
+        raise HTTPException(status_code=400, detail=f"Rejecting post request because user does not exist")
+
+    # Write the image to the filesystem
+    image_file.filename = f"{uuid.uuid4()}.jpg"
+    contents = await image_file.read() # FIX ME - read more about why I need await here
+    with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
+        f.write(contents)
+
+    # Add the post to the database
+    connection = engine.connect()
+    metadata = db.MetaData()
+    post = db.Table('post', metadata, autoload=True, autoload_with=engine)
+
+    get_image_endpoint = "/get_image"
+    image_url = f"http://{SERVER_URL}{get_image_endpoint}?image_name={image_file.filename}"
+    query = db.insert(post).values(user=username, date=func.now(), image_url=image_url, caption=caption)
+    connection.execute(query)
 
 
 @app.get("/get_all_users", status_code=200)
@@ -275,45 +303,15 @@ def get_posts_made_by_user(username: str) -> List[Post]:
 
     return posts
 
+
 @app.get("/get_image", status_code=200)
 def get_image(image_name: str):
     
     # FIX ME - check if the file exists
-
     file_path = f"{IMAGE_DIR}{image_name}"
     return FileResponse(file_path)
 
 
-@app.post("/create_post", status_code=200)
-async def post(username: str, caption: str, image_file: UploadFile):
-    """ Add the post for the user with the given username
-        
-        Args:
-            username (str) - user to add post for
-            caption (str) - user's caption for their photo
-            image_file (FastAPI.UploadFile) - image file to post
-    """
-    
-    if not does_user_exist(username):
-        raise HTTPException(status_code=400, detail=f"Rejecting post request because user does not exist") 
-
-    # Write the image to the filesystem
-    image_file.filename = f"{uuid.uuid4()}.jpg"
-    contents = await image_file.read() # FIX ME - read more about why I need await here
-    with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
-        f.write(contents)
-    
-    # Add the post to the database
-    connection = engine.connect()
-    metadata = db.MetaData()
-    post = db.Table('post', metadata, autoload=True, autoload_with=engine)
-     
-    get_image_endpoint = "/get_image"
-    image_url = f"http://{SERVER_URL}{get_image_endpoint}?image_name={image_file.filename}"
-    query = db.insert(post).values(user=username, date=func.now(), image_url=image_url, caption=caption)
-    connection.execute(query)
-
-    
      
     
     
