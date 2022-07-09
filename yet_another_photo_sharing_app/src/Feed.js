@@ -2,38 +2,45 @@ import React from "react";
 import { render } from "react-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Post from './Post.js';
-import posts from './StaticPosts.js';
 import CircularProgress from '@mui/material/CircularProgress';
 import {SERVER_IP, SERVER_PORT} from "./Config.js"; 
 
-class App extends React.Component {
+class Feed extends React.Component {
   constructor() {
 	super();
 	
 	this.fetched_posts = [];
 	this.num_posts_to_add = 3;
 	this.display_index = this.num_posts_to_add;
-	this.state = {items: []};
-  	this.get_all_posts = this.get_all_posts.bind(this);
-  	this.componentDidMount = this.componentDidMount.bind(this); 
+	this.state = {items: [], viewer: null};
+  	this.get_all_posts = this.get_all_followed_posts.bind(this);
+	this.get_viewer_data_from_server = this.get_viewer_data_from_server.bind(this);
+	this.componentDidMount = this.componentDidMount.bind(this); 
   }	
   
-  componentDidMount() {
-  	this.get_all_posts(); 
+  async componentDidMount() {
+  	await this.get_viewer_data_from_server();
+	this.get_all_posts(); 
   	document.title = "Finstagram";
   }
 
-  get_all_posts() {
-	let username = "peter";
-	let url = `http://${SERVER_IP}:${SERVER_PORT}/get_posts_made_by_user?username=${username}`; 
-	console.log("get all posts ran");
+  async get_all_followed_posts() {
+	let viewer = await this.get_viewer_data_from_server();  
+	let url = `http://${SERVER_IP}:${SERVER_PORT}/get_followed_posts?username=${viewer.username}`; 
 	fetch(url).then(response => response.json()).then((json) => {
 			this.fetched_posts = json;
 			let copy_fetched_posts = [...this.fetched_posts];
-			this.setState({items: copy_fetched_posts.splice(0, this.display_index)});
+			this.setState({items: copy_fetched_posts.splice(0, this.display_index), viewer: viewer});
 		}
 	);
   }
+  
+  get_viewer_data_from_server() {
+        let viewer_username = new URLSearchParams(window.location.search).get('username');
+	let url = `http://${SERVER_IP}:${SERVER_PORT}/get_user?username=${viewer_username}`; 	
+	return fetch(url).then(response => response.json());
+  }
+
 
   fetchMorePosts = () => {
      let copy_fetched_posts = [...this.fetched_posts];
@@ -57,15 +64,19 @@ class App extends React.Component {
           hasMore={this.display_index < this.fetched_posts.length}
           loader={<h4> Loading </h4>}
         >
-          {this.state.items.map((post, index) => (
+          {this.state.items.map((post_view, index) => (
 		<Post 
-		  image_url={post.image_url}
-		  username={post.username}
-		  date={post.date}
+		  image_url={post_view.post.image_url}
+		  username={post_view.post.username}
+		  date={post_view.post.date}
 		  name={index} 
 		  key={index}
-		  avatar_url={post.avatar_url}
-		  caption={post.caption}
+		  avatar_url={post_view.post.avatar_url}
+		  caption={post_view.post.caption}
+		  liked={post_view.liked}
+		  post_id={post_view.post.post_id}
+		  comments={post_view.post.comments}
+		  viewer={this.state.viewer}
 		  />
 	  ))
 	  }
@@ -76,4 +87,4 @@ class App extends React.Component {
 }
 
 
-export default App;
+export default Feed;
