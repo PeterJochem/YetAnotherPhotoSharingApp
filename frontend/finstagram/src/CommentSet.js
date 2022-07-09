@@ -10,11 +10,9 @@ export default function CommentSet(props) {
   const handleEnteringComment = (comment_text) => {
 	  
 	  let new_comment = {text: comment_text, commenter_username: props.viewer.username, 
-		  	     date: Date.now(), commenter_avatar_url: props.viewer.avatar_url};
+		  	     date: Date.now() / 1000, commenter_avatar_url: props.viewer.avatar_url};
 	  let new_comments = [...comments].concat(new_comment);
 	  setComments(new_comments);
-  
-    	  // Write comments to the db
 	  props.add_comment_to_database(comment_text);
   };
 
@@ -29,6 +27,7 @@ export default function CommentSet(props) {
 		     commenter_avatar_url={comment.commenter_avatar_url}
 		     date_in_unix={comment.date}
 		     key={index}
+		     viewer={props.viewer}
 		/>
               ))
        	     }

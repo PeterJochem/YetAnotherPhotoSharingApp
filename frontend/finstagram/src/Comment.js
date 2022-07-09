@@ -32,7 +32,13 @@ export default function Comment(props) {
   return (
         <Grid container wrap="nowrap"  spacing={5} sx={{padding: "10% 15%"}}>
           <Grid item>
-            <Avatar alt={props.commenter_username} src={props.commenter_avatar_url} />
+	   <a href={`/profile_view?viewer_username=${props.viewer.username}&viewee_username=${props.commenter_username}`} >
+            <Avatar 
+	  	alt={props.commenter_username} 
+	  	src={props.commenter_avatar_url}
+	    />
+	    </a>	
+
           </Grid>
           <Grid item xs zeroMinWidth>
             <h4 style={{ margin: 0, textAlign: "left" }}>{props.commenter_username}</h4>
@@ -41,7 +47,7 @@ export default function Comment(props) {
 	  	
 	  </p>
             <p style={{ textAlign: "left", color: "gray" }}>
-               {new Date(props.date_in_unix).toLocaleDateString("en-US")}
+               {(new Date(props.date_in_unix * 1000)).toLocaleString("en-US") }
             </p>
           </Grid>
         </Grid>

@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, File, Form, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import sqlalchemy as db
-from sqlalchemy import ForeignKey, Integer, String, Time
+from sqlalchemy import ForeignKey, Integer, String, Float
 from sqlalchemy.sql import func
 from ServerConfig import IMAGE_DIR, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_NAME, SERVER_URL
 import time
@@ -96,7 +96,7 @@ def create_post_table():
       'post', metadata,
       db.Column('id', Integer, primary_key=True, autoincrement=True),
       db.Column('user', String, ForeignKey(user.c.username)),
-      db.Column('date', Time),
+      db.Column('date', Float),
       db.Column('image_url', String),
       db.Column('caption', String),
     )
@@ -119,7 +119,7 @@ def create_comments_table():
       db.Column('post_id', Integer, ForeignKey(post.c.id)),
       db.Column('poster_username', String, ForeignKey(user.c.username)),
       db.Column('commenter_username', String, ForeignKey(user.c.username)),
-      db.Column('date', Time),
+      db.Column('date', Float),
       db.Column('comment', String)
     )
 
@@ -139,7 +139,7 @@ def create_likes_table():
       db.Column('id', String, primary_key=True),
       db.Column('post_id', Integer, ForeignKey(post.c.id)),
       db.Column('liker_username', String, ForeignKey(user.c.username)),
-      db.Column('date', Time),
+      db.Column('date', Float),
     )
 
     metadata.create_all(engine)
@@ -238,7 +238,7 @@ async def post(username: str, caption: str, image_file: UploadFile):
 
     get_image_endpoint = "/get_image"
     image_url = f"http://{SERVER_URL}{get_image_endpoint}?image_name={image_file.filename}"
-    query = db.insert(post).values(user=username, date=func.now(), image_url=image_url, caption=caption)
+    query = db.insert(post).values(user=username, date=time.time(), image_url=image_url, caption=caption)
     connection.execute(query)
 
 
@@ -267,7 +267,7 @@ def comment(post_id: int, commenter_username: str, text: str):
     query1 = db.select([post.c.user]).where(post.c.id == post_id)
     results = connection.execute(query1).fetchall()
     poster_username = results[0][0]
-    date = func.now()
+    date = time.time()
     
     connection = engine.connect()
     metadata = db.MetaData()
@@ -394,8 +394,6 @@ def get_following(username: str) -> List[User]:
     query = db.select([following.c.followee]).where((following.c.follower == username))
     results = connection.execute(query).fetchall()
     return [result[0] for result in results]
-     
-    
 
 
 @app.get("/get_followed_posts", status_code=200)
@@ -424,15 +422,12 @@ def get_followed_posts(username: str) -> List[PostView]:
         liked = does_user_like_post(image_url) # Need to implement this method
         comments = get_comments(post_id)
 
-
         post = {"post_id": post_id, "comments": comments, 'avatar_url': avatar_url, 'username': poster_username, 'date': date, 'image_url': image_url, 'caption': caption}
         post_view = {"post": post, "liked": liked}
         post_views.append(post_view)
 
-    # Sort it date - the most recent should come first
-
-    return post_views
-
+    return sorted(post_views, key = lambda post_view: post_view['post']['date'], reverse=True)
+    
 
 
 @app.get("/get_user", status_code=200)

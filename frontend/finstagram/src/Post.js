@@ -58,7 +58,6 @@ export default function Post(props) {
 	<CardHeader 
 	  titleTypographyProps={{fontWeight:'bold', fontSize: "0.95vw" }}
 	  avatar={
-
           	<a href={`/profile_view?viewer_username=${props.viewer.username}&viewee_username=${props.username}`}> <Avatar alt="username" src={props.avatar_url} /> </a>
           }
 	title={<div sx={{height: "20%"}}> {props.username + " •"} <Button sx={{height: "20px", fontSize: "90%"}} onClick={() => {""}}> <h3> Follow </h3> </Button> </div>}
