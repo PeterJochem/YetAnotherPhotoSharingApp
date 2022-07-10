@@ -68,7 +68,7 @@ export default function Post(props) {
 
 
   return (
-    <Card sx={{ maxWidth: 445 }} style={{paddingTop: "5%"}}>
+    <Card sx={{ maxWidth: 445 }} style={{paddingTop: "0%"}}>
        
 	<CardHeader 
 	  titleTypographyProps={{fontWeight:'bold', fontSize: "2.45vh" }}
@@ -76,7 +76,7 @@ export default function Post(props) {
           	<a href={`/profile_view?viewer_username=${props.viewer.username}&viewee_username=${props.username}`}> <Avatar alt="username" src={props.avatar_url} /> </a>
           }
 	title={<div sx={{height: "20%"}}> {props.username}
-		{ follow  ? <Button variant="outlined" sx={{height: "20px"}} style={{fontSize: "2.0vh", marginLeft: "2%"}} onClick={handleFollowClick}> <h3> Follow </h3> </Button> : <div />} </div>}
+		{ !follow  ? <Button variant="outlined" sx={{height: "20px"}} style={{fontSize: "2.0vh", marginLeft: "2%"}} onClick={handleFollowClick}> <h3> Follow </h3> </Button> : <div />} </div>}
 	
         subheader={props.date}
       />

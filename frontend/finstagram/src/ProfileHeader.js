@@ -14,28 +14,34 @@ import Button from '@mui/material/Button';
 export default function ProfileHeader(props) {
 
   return (
-	  <Paper elevation={16} style={{padding: "0%", margin: "0%", display: 'inline-flex', height: "15vh", width: "100%"}} >
+	  <Paper elevation={16} style={{padding: "0%", margin: "0%", display: "inline-flex",
+			  		height: "15vh", width: "100vw",
+	  			}} >
+		
+	  	<div style={{width: "33%", display: "inline-flex" }}>
+	  		<div style={{display: "flex", margin: "auto auto"}}>
+	  			<Avatar alt="username" src={props.user.avatar_url}  sx={{height: 100, width: 100}}/>
+	  		</div>
+	  	</div>	
 
-	  	<div style={{
-			display: "flex",
-          		justifyContent: "center",
-         		alignItems: "center",
-			marginRight: "8%",
-		}}>
-	  		<Avatar alt="username" src={props.user.avatar_url} style={{marginLeft: "30%"}} sx={{height: 100, width: 100}}/>
+	  	<div style={{width: "33.3%", display: "inline-flex" }}>
+	  		<h1 style={{fontSize: "5vw", margin: "auto auto"}}> {props.user.username} </h1>
 	  	</div>
 	  	
-	  	<h1 style={{fontSize: "5vh"}}> {props.user.username} </h1>
-	  	
-	  	<div style={{width: "100%"
-                		}}>  
-		<Button variant="outlined" 
-	  		style={{display: "flex", align-items: "right", fontSize: "2.0vh", marginRight: "0%", justifyContent: "center"}} 
-	  		onClick={""}> 
-	  
-	  		<h3> Post </h3> 
-	  	</Button>	
-		</div>
+	  	{props.can_post ?
+			<div style={{width: "33.3%", display: "inline-flex"}} >
+		  		<Button variant="outlined" 
+		  			onClick={() => {console.log("The user clicked the post button")}} 
+	  				style={{width: "30%", height: "35%", margin: "auto auto"}}
+	 			>
+	  				<h3> Post </h3> 
+	  			</Button>	
+			</div>
+	  		:
+			<div />
+		}
+		
+	
 	  </Paper>
   	 )
 }

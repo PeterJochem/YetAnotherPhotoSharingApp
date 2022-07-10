@@ -5,6 +5,7 @@ import Post from './Post.js';
 import {SERVER_IP, SERVER_PORT} from "./Config.js"; 
 import { Paper } from "@material-ui/core";
 import ProfileHeader from "./ProfileHeader.js";
+import LoadingPage from './LoadingPage.js';
 
 class ProfileView extends React.Component {
   constructor() {
@@ -12,7 +13,7 @@ class ProfileView extends React.Component {
 	this.fetched_posts = [];
 	this.num_posts_to_add = 3;
 	this.display_index = this.num_posts_to_add;
-	this.state = {items: [], viewer: null, viewee: null};
+	this.state = {items: [], viewer: null, viewee: null, can_post: false};
   	this.get_all_posts = this.get_all_posts.bind(this);
 	this.get_viewer_data_from_server = this.get_viewer_data_from_server.bind(this);
 	this.get_viewee_data_from_server = this.get_viewee_data_from_server.bind(this);
@@ -32,7 +33,8 @@ class ProfileView extends React.Component {
 	fetch(url).then(response => response.json()).then((json) => {
 			this.fetched_posts = json;
 			let copy_fetched_posts = [...this.fetched_posts];
-			this.setState({items: copy_fetched_posts.splice(0, this.display_index), viewer: viewer, viewee: viewee});
+			let can_post = viewer.username == viewee.username;
+			this.setState({items: copy_fetched_posts.splice(0, this.display_index), viewer: viewer, viewee: viewee, can_post: can_post});
 		}
 	);
   }
@@ -61,7 +63,7 @@ class ProfileView extends React.Component {
   render() {
     return (
       <div>
-	 {this.state.viewer != null ? <ProfileHeader user={this.state.viewee}> </ProfileHeader> : <h1> Still null </h1> }
+	 {this.state.viewer != null ? <ProfileHeader user={this.state.viewee} can_post={this.state.can_post} /> : <LoadingPage /> }
 	 
 	 <div style = {{ display: 'flex',
                          justifyContent: 'center',
