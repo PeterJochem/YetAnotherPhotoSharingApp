@@ -14,6 +14,10 @@
 #sudo apt install -y python3.9
 #sudo apt install -y python3.9-venv
 
-python3.9 -m venv ../backend/server/venv
+path_to_server=../backend/server
+
+python3.9 -m venv ${path_to_server}/venv
+source ${path_to_server}/venv/bin/activate
+python3.9 -m pip install -r ${path_to_server}/requirements.txt
 
 

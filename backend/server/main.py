@@ -300,9 +300,22 @@ def get_all_users() -> List[User]:
         connection = engine.connect()
         metadata = db.MetaData()
         user = db.Table('user', metadata, autoload=True, autoload_with=engine)
+        following = db.Table('following', metadata, autoload=True, autoload_with=engine)
+
         query = db.select([user])
-        users = connection.execute(query).fetchall()
+        users = [dict(user) for user in connection.execute(query).fetchall()]
+        
+        for user in users:
+            followers = get_following(user["username"])
+            user["followers"] = followers
+
+
+
+
+        print(users)
+
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=f"Failed to get a list of all the users: {e}")
     
     return users
@@ -384,18 +397,30 @@ def get_posts_made_by_user(username: str) -> List[PostView]:
     return post_views
 
 @app.get("/following", status_code=200)
-def get_following(username: str) -> List[User]:
-    """ """
+def get_following(username: str) -> List[str]:
+    """ Get a list of usernames of people who follow the given user"""
     
     connection = engine.connect()
     metadata = db.MetaData()
     following = db.Table('following', metadata, autoload=True, autoload_with=engine)
     
+    query = db.select([following.c.follower]).where((following.c.followee == username))
+    results = connection.execute(query).fetchall()
+    return [result[0] for result in results]
+
+@app.get("/followee", status_code=200)
+def get_followees(username: str) -> List[str]:
+    """ Get a list of usernames of people who the given user follows"""
+
+    connection = engine.connect()
+    metadata = db.MetaData()
+    following = db.Table('following', metadata, autoload=True, autoload_with=engine)
+
     query = db.select([following.c.followee]).where((following.c.follower == username))
     results = connection.execute(query).fetchall()
     return [result[0] for result in results]
 
-
+    
 @app.get("/get_followed_posts", status_code=200)
 def get_followed_posts(username: str) -> List[PostView]:
     """ 
@@ -410,7 +435,7 @@ def get_followed_posts(username: str) -> List[PostView]:
     metadata = db.MetaData()
     post = db.Table('post', metadata, autoload=True, autoload_with=engine)
     
-    following_usernames = get_following(username)
+    following_usernames = get_followees(username)
     query = db.select([post.c.id, post.c.user, post.c.date, post.c.image_url, post.c.caption]).where((post.c.user.in_(following_usernames)))
     results = connection.execute(query).fetchall()
 
@@ -439,7 +464,12 @@ def get_user(username: str) -> User:
     user = db.Table('user', metadata, autoload=True, autoload_with=engine)
 
     query = db.select([user.c.username, user.c.password, user.c.avatar_url]).where(user.c.username == username)
-    results = connection.execute(query).fetchall()
+    results = [dict(result) for result in connection.execute(query).fetchall()]
+    
+    for result in results:
+        username = result["username"]
+        result["followers"] = get_following(username)
+        result["followees"] = get_followees(username)
     return results[0]
 
     
@@ -471,8 +501,6 @@ def get_all_comments():
 
     query = db.select([comments.c.id, comments.c.poster_username, comments.c.commenter_username, comments.c.date, comments.c.comment])
     results = connection.execute(query).fetchall()
-
-    print(results)
     
     return results
     

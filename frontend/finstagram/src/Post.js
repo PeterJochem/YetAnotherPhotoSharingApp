@@ -31,6 +31,7 @@ const ExpandMore = styled((props) => {
 export default function Post(props) {
   const [expanded, setExpanded] = React.useState(false);
   const [liked, setLiked] = React.useState(props.liked);
+  const [follow, setFollow] = React.useState(props.viewer.followees.includes(props.username) || props.viewer.username == props.username)
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -39,8 +40,12 @@ export default function Post(props) {
   const handleLikeClick = () => {
     setLiked(!liked);
   };
+ 
+  const handleFollowClick = () => {
+    setFollow(true);
+    add_follower(); 
+  };
 
-  
   const add_comment_to_database = (text) => {
 	let url = `http://${SERVER_IP}:${SERVER_PORT}/comment?post_id=${props.post_id}&commenter_username=${props.viewer.username}&text=${text}`; 
   	fetch(url, {
@@ -51,22 +56,35 @@ export default function Post(props) {
 	});
   }
 
+  const add_follower = () => {
+        let url = `http://${SERVER_IP}:${SERVER_PORT}/follow?follower_username=${props.viewer.username}&followee_username=${props.username}`; 
+        fetch(url, {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                }).then(res => {
+                console.log("Request to add follower to database completed!");
+        });
+  }
+
 
   return (
-    <Card sx={{ maxWidth: 445 }}>
+    <Card sx={{ maxWidth: 445 }} style={{paddingTop: "5%"}}>
        
 	<CardHeader 
-	  titleTypographyProps={{fontWeight:'bold', fontSize: "0.95vw" }}
+	  titleTypographyProps={{fontWeight:'bold', fontSize: "2.45vh" }}
 	  avatar={
           	<a href={`/profile_view?viewer_username=${props.viewer.username}&viewee_username=${props.username}`}> <Avatar alt="username" src={props.avatar_url} /> </a>
           }
-	title={<div sx={{height: "20%"}}> {props.username + " •"} <Button sx={{height: "20px", fontSize: "90%"}} onClick={() => {""}}> <h3> Follow </h3> </Button> </div>}
+	title={<div sx={{height: "20%"}}> {props.username}
+		{ follow  ? <Button variant="outlined" sx={{height: "20px"}} style={{fontSize: "2.0vh", marginLeft: "2%"}} onClick={handleFollowClick}> <h3> Follow </h3> </Button> : <div />} </div>}
+	
         subheader={props.date}
       />
        
      <CardMedia
         component="img"
-        height="290"
+	height="400 %"
+	width="auto"
         image={props.image_url}
 	alt="Post Unavailable"
       />

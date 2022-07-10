@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class User(BaseModel):
     """Docstring here"""
@@ -6,3 +7,5 @@ class User(BaseModel):
     username: str
     password: str
     avatar_url: str
+    followers: List[str]
+    followees: List[str]

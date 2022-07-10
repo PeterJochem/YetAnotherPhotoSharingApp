@@ -18,14 +18,14 @@ root.render(
 
    <Routes>
       <Route path="/feed" element={<Feed />} >
-		<Route path="username:username"  />
+		<Route path=":username"  />
       </Route>
       
       <Route path="profile_view" element={<ProfileView />}>
       		<Route path=":viewer_username:viewee_username"  />
       </Route> 
       <Route path="post_view" element={<h1> Add a feature to view a single post. Cool to be able to get a link to a single post</h1>}>
-                <Route path=":username" />
+                <Route path=":post_id" />
       </Route>
 
       <Route

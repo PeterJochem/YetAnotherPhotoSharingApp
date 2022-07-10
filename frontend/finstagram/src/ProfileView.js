@@ -3,11 +3,12 @@ import { render } from "react-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Post from './Post.js';
 import {SERVER_IP, SERVER_PORT} from "./Config.js"; 
+import { Paper } from "@material-ui/core";
+import ProfileHeader from "./ProfileHeader.js";
 
 class ProfileView extends React.Component {
   constructor() {
 	super();
-	
 	this.fetched_posts = [];
 	this.num_posts_to_add = 3;
 	this.display_index = this.num_posts_to_add;
@@ -59,9 +60,13 @@ class ProfileView extends React.Component {
 
   render() {
     return (
-      <div style = {{ display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center'
+      <div>
+	 {this.state.viewer != null ? <ProfileHeader user={this.state.viewee}> </ProfileHeader> : <h1> Still null </h1> }
+	 
+	 <div style = {{ display: 'flex',
+                         justifyContent: 'center',
+                         alignItems: 'center',
+		         paddingTop: "5%"
                }}>
 	
         <InfiniteScroll
@@ -88,6 +93,7 @@ class ProfileView extends React.Component {
 	  }
         </InfiniteScroll>
       </div>
+     </div>
     );
   }
 }
