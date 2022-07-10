@@ -26,6 +26,9 @@ root.render(
       </Route> 
       <Route path="post_view" element={<h1> Add a feature to view a single post. Cool to be able to get a link to a single post</h1>}>
                 <Route path=":post_id" />
+      </Route>	
+       <Route path="create_new_post" element={<h1> This is where a user will add a post</h1>}>
+                <Route path=":username" />
       </Route>
 
       <Route

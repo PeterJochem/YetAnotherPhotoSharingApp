@@ -10,8 +10,15 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MenuItem from '@mui/material/MenuItem';
 import { Divider, Grid, Paper } from "@material-ui/core";
 import Button from '@mui/material/Button';
+import {SERVER_IP, SERVER_PORT} from "./Config.js";
 
 export default function ProfileHeader(props) {
+
+  const handlePostClick = () => {
+	console.log("the user clicked post");
+
+  }
+ 
 
   return (
 	  <Paper elevation={16} style={{padding: "0%", margin: "0%", display: "inline-flex",
@@ -30,12 +37,16 @@ export default function ProfileHeader(props) {
 	  	
 	  	{props.can_post ?
 			<div style={{width: "33.3%", display: "inline-flex"}} >
+				
+				<a href={`/create_new_post?username=${props.user.username}`} 
+					style={{display: "inline-flex", width: "100%", height: "100%", margin: "auto auto", textDecoration: "none"}}>
 		  		<Button variant="outlined" 
-		  			onClick={() => {console.log("The user clicked the post button")}} 
+		  			onClick={handlePostClick} 
 	  				style={{width: "30%", height: "35%", margin: "auto auto"}}
 	 			>
-	  				<h3> Post </h3> 
+	  				<h3> Post </h3>
 	  			</Button>	
+				</a>
 			</div>
 	  		:
 			<div />
