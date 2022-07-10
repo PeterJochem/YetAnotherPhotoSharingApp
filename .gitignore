@@ -1,2 +1,3 @@
 backend/server/venv/*
 backend/server/__pycache__/
+backend/database/images/
