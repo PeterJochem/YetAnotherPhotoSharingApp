@@ -29,7 +29,7 @@ class ProfileView extends React.Component {
   async get_all_posts() {
 	let viewer = await this.get_viewer_data_from_server(); 
 	let viewee = await this.get_viewee_data_from_server();
-	let url = `http://${SERVER_IP}:${SERVER_PORT}/get_posts_made_by_user?username=${viewee.username}`; 
+	let url = `http://${SERVER_IP}:${SERVER_PORT}/get_posts_made_by_user?viewee_username=${viewee.username}&viewer_username=${viewer.username}`; 
 	fetch(url).then(response => response.json()).then((json) => {
 			this.fetched_posts = json;
 			let copy_fetched_posts = [...this.fetched_posts];

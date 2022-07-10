@@ -136,7 +136,7 @@ def create_likes_table():
 
     likes = db.Table(
       'likes', metadata,
-      db.Column('id', String, primary_key=True),
+      db.Column('id', Integer, primary_key=True, autoincrement=True),
       db.Column('post_id', Integer, ForeignKey(post.c.id)),
       db.Column('liker_username', String, ForeignKey(user.c.username)),
       db.Column('date', Float),
@@ -281,11 +281,28 @@ def follow(follower_username: str, followee_username: str):
     connection = engine.connect()
     metadata = db.MetaData()
     following = db.Table('following', metadata, autoload=True, autoload_with=engine)
-    
-    # HERE
     query = db.insert(following).values(follower=follower_username, followee=followee_username)
     connection.execute(query)
 
+@app.post("/like", status_code=200)
+def like(username: str, post_id: int):
+    """ ... """
+        
+    connection = engine.connect()
+    metadata = db.MetaData()
+    likes = db.Table('likes', metadata, autoload=True, autoload_with=engine)
+    query = db.insert(likes).values(post_id=post_id, liker_username=username, date=time.time())
+    connection.execute(query) 
+   
+@app.post("/unlike", status_code=200)
+def unlike(username: str, post_id: int):
+    """ ... """
+
+    connection = engine.connect()
+    metadata = db.MetaData()
+    likes = db.Table('likes', metadata, autoload=True, autoload_with=engine)
+    query = db.delete(likes).where((likes.c.post_id == post_id))
+    connection.execute(query)
 
 
 @app.get("/get_all_users", status_code=200)
@@ -308,12 +325,7 @@ def get_all_users() -> List[User]:
         for user in users:
             followers = get_following(user["username"])
             user["followers"] = followers
-
-
-
-
-        print(users)
-
+    
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Failed to get a list of all the users: {e}")
@@ -336,16 +348,21 @@ def get_users_avatar_url(username: str) -> str:
     
     return results[0][0]
 
-def does_user_like_post(image_url: str):
-    """ Implement me """
+def does_user_like_post(username: str, post_id: int) -> bool:
+    """ ... """
 
-    return False
+    connection = engine.connect()
+    metadata = db.MetaData()
+    likes = db.Table('likes', metadata, autoload=True, autoload_with=engine)
+
+    query = db.select([likes]).where((likes.c.post_id == post_id) & (likes.c.liker_username == username))
+    results = connection.execute(query).fetchall()
+    return len(results) > 0
+    
 
 def get_comments(post_id: int) -> List[Comment]:
     """ """
     
-    print(f"post_id = {post_id}")
-
     connection = engine.connect()
     metadata = db.MetaData()    
     comments = db.Table('comments', metadata, autoload=True, autoload_with=engine)
@@ -353,21 +370,17 @@ def get_comments(post_id: int) -> List[Comment]:
     query = db.select([comments.c.id, comments.c.post_id, comments.c.poster_username, comments.c.commenter_username, comments.c.date, comments.c.comment]).where((comments.c.post_id == post_id))
     results = connection.execute(query).fetchall()
      
-    print(f"The results are {results}")
-
     comments = []
     for result in results:
         id, post_id, poster_username, commenter_username, date, text = result
         commenter_avatar_url = get_users_avatar_url(commenter_username)
         comments.append({"post_id": post_id, "poster_username": poster_username, "commenter_username": commenter_username, "commenter_avatar_url": commenter_avatar_url, "date": date, "text": text})
 
-    
-    print(f"The comments are {comments}")
     return comments
 
 
 @app.get("/get_posts_made_by_user", status_code=200)
-def get_posts_made_by_user(username: str) -> List[PostView]:
+def get_posts_made_by_user(viewee_username: str, viewer_username: str) -> List[PostView]:
     """ Get the posts made by the user with the given username
         
         Args:
@@ -381,14 +394,15 @@ def get_posts_made_by_user(username: str) -> List[PostView]:
     metadata = db.MetaData()
     post = db.Table('post', metadata, autoload=True, autoload_with=engine)
     
-    query = db.select([post.c.id, post.c.user, post.c.date, post.c.image_url, post.c.caption]).where((post.c.user == username))
+    query = db.select([post.c.id, post.c.user, post.c.date, post.c.image_url, post.c.caption]).where((post.c.user == viewee_username))
     results = connection.execute(query).fetchall()
     
     post_views = []
     for result in results:
         post_id, poster_username, date, image_url, caption = result
         avatar_url = get_users_avatar_url(poster_username)
-        liked = does_user_like_post(image_url)
+        liked = does_user_like_post(viewer_username, post_id)
+        
         comments = get_comments(post_id) 
         post = {"post_id": post_id, "comments": comments, 'avatar_url': avatar_url, 'username': poster_username, 'date': date, 'image_url': image_url, 'caption': caption}
         post_view = {"post": post, "liked": liked} 
@@ -444,9 +458,9 @@ def get_followed_posts(username: str) -> List[PostView]:
         post_id, poster_username, date, image_url, caption = result
         avatar_url = get_users_avatar_url(poster_username)
         
-        liked = does_user_like_post(image_url) # Need to implement this method
+        liked = does_user_like_post(username, post_id)
         comments = get_comments(post_id)
-
+        
         post = {"post_id": post_id, "comments": comments, 'avatar_url': avatar_url, 'username': poster_username, 'date': date, 'image_url': image_url, 'caption': caption}
         post_view = {"post": post, "liked": liked}
         post_views.append(post_view)

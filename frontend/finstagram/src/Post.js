@@ -38,8 +38,16 @@ export default function Post(props) {
   };
   
   const handleLikeClick = () => {
-    setLiked(!liked);
-  };
+    
+     setLiked(!liked); 
+     let initial_liked = liked;
+     if (initial_liked) {
+    	remove_like_from_database();
+     }
+     else {
+	add_like_to_database();
+     }
+   };
  
   const handleFollowClick = () => {
     setFollow(true);
@@ -55,7 +63,29 @@ export default function Post(props) {
 	  	console.log("Request to add comment to database completed!");
 	});
   }
+  
 
+  const add_like_to_database = () => {
+        let url = `http://${SERVER_IP}:${SERVER_PORT}/like?post_id=${props.post_id}&username=${props.viewer.username}`; 
+        fetch(url, {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                }).then(res => {
+                console.log("Request to add like to database completed!");
+        });
+  }
+ 
+  const remove_like_from_database = () => {
+        let url = `http://${SERVER_IP}:${SERVER_PORT}/unlike?post_id=${props.post_id}&username=${props.viewer.username}`; 
+        fetch(url, {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                }).then(res => {
+                console.log("Request to add like to database completed!");
+        });
+  }
+
+ 
   const add_follower = () => {
         let url = `http://${SERVER_IP}:${SERVER_PORT}/follow?follower_username=${props.viewer.username}&followee_username=${props.username}`; 
         fetch(url, {
@@ -78,7 +108,7 @@ export default function Post(props) {
 	title={<div sx={{height: "20%"}}> {props.username}
 		{ !follow  ? <Button variant="outlined" sx={{height: "20px"}} style={{fontSize: "2.0vh", marginLeft: "2%"}} onClick={handleFollowClick}> <h3> Follow </h3> </Button> : <div />} </div>}
 	
-        subheader={props.date}
+        subheader={(new Date(props.date * 1000)).toDateString()}
       />
        
      <CardMedia
