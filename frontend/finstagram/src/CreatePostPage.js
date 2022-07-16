@@ -33,18 +33,22 @@ class CreatePostPage extends React.Component {
   render() {
     return (
       <div>
-	 {this.state.user != null ? <ProfileHeader a={console.log(this.state.user)} user={this.state.user} can_post={true} /> : <LoadingPage /> }
-	 
-	 <div style = {{ display: 'flex',
+	 {this.state.user == null ?
+		 
+		 <LoadingPage />
+		 :
+		 <div>
+			<ProfileHeader a={console.log(this.state.user)} user={this.state.user} can_post={true} /> 
+			
+		 	<div style = {{ display: 'flex',
                          justifyContent: 'center',
                          alignItems: 'center',
-		         paddingTop: "5%"
-               }}>
-	
-	 <CreatePost user={this.state.user} />
-      
-	    
-       </div>
+                         paddingTop: "5%"}}>
+		 		<CreatePost user={this.state.user} />
+		       </div>
+		 </div>
+	}
+	 
      </div>
     );
   }

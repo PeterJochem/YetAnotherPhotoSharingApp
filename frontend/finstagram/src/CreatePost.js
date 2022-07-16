@@ -71,7 +71,11 @@ export default function CreatePost(props) {
 
     <Card sx={{ maxWidth: 445 }} style={{paddingTop: "0%"}}>
 	  <CardHeader titleTypographyProps={{fontWeight:'bold', fontSize: "2.45vh" }}
-      />
+		      avatar={<a href={`/profile_view?viewer_username=${props.user.username}&viewee_username=${props.user.username}`}> <Avatar alt="username" src={props.user.avatar_url} /> </a>
+          }          
+
+	  title={<div sx={{height: "20%"}}> {props.user.username}  </div>}	  
+	/>
 
       <CardMedia
         component="img"
