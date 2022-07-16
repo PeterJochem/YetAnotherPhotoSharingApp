@@ -410,6 +410,42 @@ def get_posts_made_by_user(viewee_username: str, viewer_username: str) -> List[P
 
     return post_views
 
+
+@app.get("/get_posts_by_id", status_code=200)
+def get_posts_by_id(viewer_username: str, post_id: int) -> List[PostView]:
+    """ 
+
+        Args:
+            username (str) - username of finstagram user
+
+        Returns:
+            List[Post] - all the posts made by the user
+    """
+
+    print(f"{viewer_username}, {post_id}")
+
+    connection = engine.connect()
+    metadata = db.MetaData()
+    post = db.Table('post', metadata, autoload=True, autoload_with=engine)
+
+    query = db.select([post.c.id, post.c.user, post.c.date, post.c.image_url, post.c.caption]).where(post.c.id == post_id)
+    result = connection.execute(query).fetchall()
+
+    if len(result) == 0:
+        raise Exception() 
+
+    post_id, poster_username, date, image_url, caption = result[0]
+    avatar_url = get_users_avatar_url(poster_username)
+    liked = does_user_like_post(viewer_username, post_id)
+
+    comments = get_comments(post_id)
+    post = {"post_id": post_id, "comments": comments, 'avatar_url': avatar_url, 'username': poster_username, 'date': date, 'image_url': image_url, 'caption': caption}
+    post_view = {"post": post, "liked": liked}
+
+    return post_view
+
+
+
 @app.get("/following", status_code=200)
 def get_following(username: str) -> List[str]:
     """ Get a list of usernames of people who follow the given user"""
@@ -480,6 +516,9 @@ def get_user(username: str) -> User:
     query = db.select([user.c.username, user.c.password, user.c.avatar_url]).where(user.c.username == username)
     results = [dict(result) for result in connection.execute(query).fetchall()]
     
+    if len(results) == 0:
+        raise HTTPException(status_code=500, detail=f"User does not exist")
+
     for result in results:
         username = result["username"]
         result["followers"] = get_following(username)
