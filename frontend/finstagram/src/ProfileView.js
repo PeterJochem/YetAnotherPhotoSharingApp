@@ -6,6 +6,8 @@ import {SERVER_IP, SERVER_PORT} from "./Config.js";
 import { Paper } from "@material-ui/core";
 import ProfileHeader from "./ProfileHeader.js";
 import LoadingPage from './LoadingPage.js';
+import { Redirect } from 'react-router';
+
 
 class ProfileView extends React.Component {
   constructor() {
@@ -17,6 +19,7 @@ class ProfileView extends React.Component {
   	this.get_all_posts = this.get_all_posts.bind(this);
 	this.get_viewer_data_from_server = this.get_viewer_data_from_server.bind(this);
 	this.get_viewee_data_from_server = this.get_viewee_data_from_server.bind(this);
+	this.sort_posts_by_date = this.sort_posts_by_date;
 	this.componentDidMount = this.componentDidMount.bind(this); 
   }	
   
@@ -34,7 +37,7 @@ class ProfileView extends React.Component {
 			this.fetched_posts = json;
 			let copy_fetched_posts = [...this.fetched_posts];
 			let can_post = viewer.username == viewee.username;
-			this.setState({items: copy_fetched_posts.splice(0, this.display_index), viewer: viewer, viewee: viewee, can_post: can_post});
+			this.setState({items: copy_fetched_posts, viewer: viewer, viewee: viewee, can_post: can_post});
 		}
 	);
   }
@@ -60,6 +63,11 @@ class ProfileView extends React.Component {
      this.display_index += this.num_posts_to_add;
   };
 
+  sort_posts_by_date = (posts) => {
+	let cmp_function = (post1, post2) => {return (post2.post.date - post1.post.date)};
+	return posts.sort(cmp_function)
+  }
+
   render() {
     return (
       <div>
@@ -74,10 +82,10 @@ class ProfileView extends React.Component {
         <InfiniteScroll
           dataLength={this.state.items.length}
           next={this.fetchMorePosts}
-          hasMore={this.display_index < this.fetched_posts.length}
+          hasMore={false}
           loader={<h4> Loading </h4>}
         >
-          {this.state.items.map((post_view, index) => (
+          {this.sort_posts_by_date(this.state.items).map((post_view, index) => (
 		<Post 
 		  image_url={post_view.post.image_url}
 		  username={post_view.post.username}

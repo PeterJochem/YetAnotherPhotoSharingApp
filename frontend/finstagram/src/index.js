@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import ProfileView from './ProfileView.js';
 import PostView from "./PostView.js";
+import CreatePostPage from "./CreatePostPage.js";
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -28,7 +29,7 @@ root.render(
       <Route path="post_view" element={<PostView />}>
                 <Route path=":post_id:viewer_username:viewee_username" />
       </Route>	
-       <Route path="create_new_post" element={<PostView />}>
+       <Route path="create_new_post" element={<CreatePostPage />}>
                 <Route path=":username" />
       </Route>
 
