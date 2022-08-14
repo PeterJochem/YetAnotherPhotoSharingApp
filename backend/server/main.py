@@ -116,9 +116,11 @@ def create_comments_table():
     comments = db.Table(
       'comments', metadata,
       db.Column('id', Integer, primary_key=True, autoincrement=True),
-      db.Column('post_id', Integer, ForeignKey(post.c.id)),
-      db.Column('poster_username', String, ForeignKey(user.c.username)),
-      db.Column('commenter_username', String, ForeignKey(user.c.username)),
+      db.Column('post_id', Integer, ForeignKey(post.c.id, ondelete="CASCADE")),
+      
+      db.Column('poster_username', String, ForeignKey(user.c.username, ondelete="CASCADE")),
+      db.Column('commenter_username', String, ForeignKey(user.c.username, ondelete="CASCADE")),
+      
       db.Column('date', Float),
       db.Column('comment', String)
     )
@@ -213,7 +215,7 @@ async def upadte_users_avatar(username: str, image_file: UploadFile):
     connection.execute(query)
 
 @app.post("/create_post", status_code=200)
-async def post(username: str, caption: str, image_file: UploadFile):
+async def post(image_file: UploadFile, username: str, caption: str):
     """ Add the post for the user with the given username
         
         Args:
@@ -226,6 +228,29 @@ async def post(username: str, caption: str, image_file: UploadFile):
         raise HTTPException(status_code=400, detail=f"Rejecting post request because user does not exist")
 
     # Write the image to the filesystem
+    image_file.filename = f"{uuid.uuid4()}.jpg"
+    contents = await image_file.read() # FIX ME - read more about why I need await here
+    with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
+        f.write(contents)
+
+    # Add the post to the database
+    connection = engine.connect()
+    metadata = db.MetaData()
+    post = db.Table('post', metadata, autoload=True, autoload_with=engine)
+
+    get_image_endpoint = "/get_image"
+    image_url = f"http://{SERVER_URL}{get_image_endpoint}?image_name={image_file.filename}"
+    query = db.insert(post).values(user=username, date=time.time(), image_url=image_url, caption=caption)
+    connection.execute(query)
+
+# THIS IS FOR TESTING - DELETE THIS
+@app.post("/create_post2", status_code=200)
+#async def post2(image_file: bytes = File()):
+    #if not does_user_exist(username):
+    #    raise HTTPException(status_code=400, detail=f"Rejecting post request because user does not exist")
+async def post(image_file: UploadFile, username: str, caption: str):   
+
+
     image_file.filename = f"{uuid.uuid4()}.jpg"
     contents = await image_file.read() # FIX ME - read more about why I need await here
     with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
@@ -534,14 +559,14 @@ def get_image(image_name: str):
     file_path = f"{IMAGE_DIR}{image_name}"
     return FileResponse(file_path)
 
-@app.delete("/delete_post", status_code=200)
+@app.post("/delete_post")
 def delete_post(post_id: int):
     """ Delete the post with the given post_id """ 
 
     connection = engine.connect()
     metadata = db.MetaData()
     post = db.Table('post', metadata, autoload=True, autoload_with=engine)
-    query = db.delete(post).where((post.c.post_id == post_id))
+    query = db.delete(post).where((post.c.id == post_id))
     connection.execute(query)
      
 

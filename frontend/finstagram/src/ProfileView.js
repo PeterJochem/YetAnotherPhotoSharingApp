@@ -20,6 +20,9 @@ class ProfileView extends React.Component {
 	this.get_viewer_data_from_server = this.get_viewer_data_from_server.bind(this);
 	this.get_viewee_data_from_server = this.get_viewee_data_from_server.bind(this);
 	this.sort_posts_by_date = this.sort_posts_by_date;
+	this.delete_post_from_database = this.delete_post_from_database.bind(this);
+        this.delete_post_locally = this.delete_post_locally.bind(this);
+        this.delete_post = this.delete_post.bind(this);
 	this.componentDidMount = this.componentDidMount.bind(this); 
   }	
   
@@ -63,6 +66,33 @@ class ProfileView extends React.Component {
      this.display_index += this.num_posts_to_add;
   };
 
+  delete_post_from_database = (post_id) => {
+        let url = `http://${SERVER_IP}:${SERVER_PORT}/delete_post?post_id=${post_id}`;
+        fetch(url, {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                }).then(res => {
+                console.log("Request to delete post from database completed!");
+        });
+  }
+
+  delete_post_locally = (post_id) => {
+        let copy_fetched_posts = [...this.fetched_posts];
+        let filtered_posts = copy_fetched_posts.filter(post => !(post.post.post_id == post_id));
+        
+	this.display_index -= 1;
+	this.setState({items: filtered_posts});
+	this.fetched_posts = filtered_posts;
+  }
+
+
+  delete_post = (post_id) => {
+	this.delete_post_from_database(post_id)
+	this.delete_post_locally(post_id);
+        // decrement the index?
+  }
+
+
   sort_posts_by_date = (posts) => {
 	let cmp_function = (post1, post2) => {return (post2.post.date - post1.post.date)};
 	return posts.sort(cmp_function)
@@ -98,6 +128,7 @@ class ProfileView extends React.Component {
 		  post_id={post_view.post.post_id}
 		  comments={post_view.post.comments}
 		  viewer={this.state.viewer}
+		  delete_post={this.delete_post}
 		  />
 	  ))
 	  }

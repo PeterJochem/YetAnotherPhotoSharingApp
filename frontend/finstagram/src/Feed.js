@@ -8,13 +8,15 @@ import {SERVER_IP, SERVER_PORT} from "./Config.js";
 class Feed extends React.Component {
   constructor() {
 	super();
-	
 	this.fetched_posts = [];
 	this.num_posts_to_add = 3;
 	this.display_index = this.num_posts_to_add;
 	this.state = {items: [], viewer: null};
   	this.get_all_posts = this.get_all_followed_posts.bind(this);
 	this.get_viewer_data_from_server = this.get_viewer_data_from_server.bind(this);
+	this.delete_post_from_database = this.delete_post_from_database.bind(this);
+	this.delete_post_locally = this.delete_post_locally.bind(this);
+	this.delete_post = this.delete_post.bind(this);
 	this.componentDidMount = this.componentDidMount.bind(this); 
   }	
   
@@ -51,6 +53,25 @@ class Feed extends React.Component {
      this.display_index += this.num_posts_to_add;
   };
 
+  delete_post_from_database = (post_id) => {
+	let url = `http://${SERVER_IP}:${SERVER_PORT}/delete_post?post_id=${post_id}`;
+	return fetch(url).then(response => response.json());
+  }
+  
+  delete_post_locally = (post_id) => {
+	let copy_fetched_posts = [...this.fetched_posts];
+	let filtered_posts = copy_fetched_posts.filter(post => !(post.id == post_id));
+	this.setState({items: filtered_posts});
+  }
+
+
+  delete_post = (post_id) => {
+	this.delete_post_locally(post_id);
+	this.delete_post_from_database(post_id)
+
+	 // decrement the index?
+  }
+
   render() {
     return (
       <div style = {{ display: 'flex',
@@ -77,6 +98,7 @@ class Feed extends React.Component {
 		  post_id={post_view.post.post_id}
 		  comments={post_view.post.comments}
 		  viewer={this.state.viewer}
+		  delete_post={this.delete_post}
 		  />
 	  ))
 	  }

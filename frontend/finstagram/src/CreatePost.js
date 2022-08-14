@@ -38,27 +38,23 @@ export default function CreatePost(props) {
   };
 
 
-  const addNewPost = () => {
-	let url = `http://${SERVER_IP}:${SERVER_PORT}/create_post?username=peter&caption=${caption}`;
+  async function addNewPost() {
+	let url = `http://${SERVER_IP}:${SERVER_PORT}/create_post?username=${props.user.username}&caption=${caption}`;
 	const formData = new FormData();
-	formData.append('image_file', image_file);
-	
-        axios({
-                method: 'post',
-                url: url,
-                data: formData,
-                headers: {
-                    'accept': 'application/json'}
-            })
-            .then(function(response) {
-                console.log(response);
-            })
-            .catch(function(response) {
-                console.error(response);
+	      formData.append(
+        	"image_file",
+        	image_file
+        );
+     	
+        await fetch(url, 
+	     	{method: "POST", body: formData,
+		}).then(response => response.json())
+        .then(function (response) {
+          console.log('response')
+          console.log(response)
             });
-    	
+
 	window.location = 'http://localhost:3000/profile_view?viewer_username=peter&viewee_username=peter';
-	// Write to the user's posts?
   }
  
 

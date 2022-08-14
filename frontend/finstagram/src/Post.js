@@ -15,7 +15,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import CommentSet from "./CommentSet.js";
 import {SERVER_IP, SERVER_PORT} from "./Config.js";
 import Button from '@mui/material/Button';
-
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -132,6 +132,15 @@ export default function Post(props) {
 	<IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
+	
+	{props.viewer.username == props.username ? 
+		<IconButton aria-label="delete">
+          		<DeleteIcon onClick={() => {props.delete_post(props.post_id)}}/>
+        	</IconButton>
+	:	
+		<div> </div>
+	}
+
 
 	<ExpandMore
           expand={expanded}
