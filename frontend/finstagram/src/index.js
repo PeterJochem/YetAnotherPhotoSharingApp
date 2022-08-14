@@ -11,7 +11,9 @@ import {
 import ProfileView from './ProfileView.js';
 import PostView from "./PostView.js";
 import CreatePostPage from "./CreatePostPage.js";
-
+import CreateNewUser from "./CreateNewUser.js";
+import EditUserSettings from './EditUserSettings.js';
+import Login from './Login.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -32,6 +34,15 @@ root.render(
        <Route path="create_new_post" element={<CreatePostPage />}>
                 <Route path=":username" />
       </Route>
+      
+       <Route path="create_new_user" element={<CreateNewUser />}>
+       </Route>
+	
+       <Route path="edit_user_settings" element={<EditUserSettings />}>
+       </Route>
+
+       <Route path="login" element={<Login />}>
+       </Route>
 
       <Route
       	path="*"

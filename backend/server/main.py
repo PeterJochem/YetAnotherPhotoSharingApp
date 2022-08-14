@@ -189,7 +189,7 @@ def create_new_user(new_user: User):
 
 # FIX Me - should this be a patch?
 @app.post("/set_avatar", status_code=200)
-async def upadte_users_avatar(username: str, image_file: UploadFile):
+async def update_users_avatar(image_file: UploadFile, username: str):
     """ Set a user's avatar
         
         Args:
@@ -200,7 +200,7 @@ async def upadte_users_avatar(username: str, image_file: UploadFile):
         raise HTTPException(status_code=404, detail=f"User does not exist with username {username}")
     
     image_file.filename = f"{uuid.uuid4()}.jpg"
-    contents = await image_file.read() # FIX ME - read more about why I need await here
+    contents = await image_file.read()
     with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
         f.write(contents)
 
@@ -219,38 +219,15 @@ async def post(image_file: UploadFile, username: str, caption: str):
     """ Add the post for the user with the given username
         
         Args:
+            image_file (FastAPI.UploadFile) - image file to post
             username (str) - user to add post for
             caption (str) - user's caption for their photo
-            image_file (FastAPI.UploadFile) - image file to post
     """
 
     if not does_user_exist(username):
         raise HTTPException(status_code=400, detail=f"Rejecting post request because user does not exist")
 
     # Write the image to the filesystem
-    image_file.filename = f"{uuid.uuid4()}.jpg"
-    contents = await image_file.read() # FIX ME - read more about why I need await here
-    with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
-        f.write(contents)
-
-    # Add the post to the database
-    connection = engine.connect()
-    metadata = db.MetaData()
-    post = db.Table('post', metadata, autoload=True, autoload_with=engine)
-
-    get_image_endpoint = "/get_image"
-    image_url = f"http://{SERVER_URL}{get_image_endpoint}?image_name={image_file.filename}"
-    query = db.insert(post).values(user=username, date=time.time(), image_url=image_url, caption=caption)
-    connection.execute(query)
-
-# THIS IS FOR TESTING - DELETE THIS
-@app.post("/create_post2", status_code=200)
-#async def post2(image_file: bytes = File()):
-    #if not does_user_exist(username):
-    #    raise HTTPException(status_code=400, detail=f"Rejecting post request because user does not exist")
-async def post(image_file: UploadFile, username: str, caption: str):   
-
-
     image_file.filename = f"{uuid.uuid4()}.jpg"
     contents = await image_file.read() # FIX ME - read more about why I need await here
     with open(f"{IMAGE_DIR}{image_file.filename}", "wb") as f:
@@ -274,9 +251,6 @@ def get_username_of_from_post_id(post_id: int):
     metadata = db.MetaData()
     post = db.Table('post', metadata, autoload=True, autoload_with=engine)
     
-
-
-
 
 @app.post("/comment", status_code=200)
 def comment(post_id: int, commenter_username: str, text: str):
@@ -327,6 +301,16 @@ def unlike(username: str, post_id: int):
     metadata = db.MetaData()
     likes = db.Table('likes', metadata, autoload=True, autoload_with=engine)
     query = db.delete(likes).where((likes.c.post_id == post_id))
+    connection.execute(query)
+
+@app.post("/delete_post")
+def delete_post(post_id: int):
+    """ Delete the post with the given post_id """
+
+    connection = engine.connect()
+    metadata = db.MetaData()
+    post = db.Table('post', metadata, autoload=True, autoload_with=engine)
+    query = db.delete(post).where((post.c.id == post_id))
     connection.execute(query)
 
 
@@ -559,16 +543,6 @@ def get_image(image_name: str):
     file_path = f"{IMAGE_DIR}{image_name}"
     return FileResponse(file_path)
 
-@app.post("/delete_post")
-def delete_post(post_id: int):
-    """ Delete the post with the given post_id """ 
-
-    connection = engine.connect()
-    metadata = db.MetaData()
-    post = db.Table('post', metadata, autoload=True, autoload_with=engine)
-    query = db.delete(post).where((post.c.id == post_id))
-    connection.execute(query)
-     
 
 @app.get("/get_all_comments", status_code=200)
 def get_all_comments():
@@ -582,6 +556,58 @@ def get_all_comments():
     
     return results
     
+@app.get("/is_username_taken", status_code=200)
+def is_username_taken(username: str) -> bool:
+    """ Check if the username is already in use by another person
     
+        Args:
+            username (str) - user's username 
 
+        Returns:
+            bool - True a user has taken this username. False otherwise
+    """ 
+
+    users = get_all_users()
+    usernames = [user["username"] for user in users]
+    return username in usernames
+
+
+@app.get("/is_password_legal", status_code=200)
+def is_password_legal(password: str) -> bool:
+    """ Check if the password is at least 6 charachters
+        
+        Args:
+            password (str) - 
+
+        Returns:
+            bool - 
+         
+    """
+
+    min_length_password = 5
+    if password is None:
+        return False
+    return len(password) > min_length_password 
+
+@app.get("/login", status_code=200)
+def login(username: str, password: str) -> bool:
+    """ Check if username and password match any record in db
     
+        Args:
+            username (str): potential username of a user
+            password (str): potential password of the user
+
+        Returns:
+            bool - True if username and password match record in db 
+    """
+
+    if username is None or password is None:
+        return False
+
+    if not does_user_exist(username):
+        return False
+    
+    user = get_user(username)
+    return user["password"] == password
+
+

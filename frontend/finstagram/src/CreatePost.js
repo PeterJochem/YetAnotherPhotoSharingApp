@@ -37,7 +37,10 @@ export default function CreatePost(props) {
     event.target.value = null;
   };
 
-
+  function redirect_to_view_of_users_page() {
+	 window.location = `http://localhost:3000/profile_view?viewer_username=${props.user.username}&viewee_username=${props.user.username}`;
+  }
+ 
   async function addNewPost() {
 	let url = `http://${SERVER_IP}:${SERVER_PORT}/create_post?username=${props.user.username}&caption=${caption}`;
 	const formData = new FormData();
@@ -53,8 +56,8 @@ export default function CreatePost(props) {
           console.log('response')
           console.log(response)
             });
-
-	window.location = 'http://localhost:3000/profile_view?viewer_username=peter&viewee_username=peter';
+  
+  	redirect_to_view_of_users_page()
   }
  
 

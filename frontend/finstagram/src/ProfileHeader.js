@@ -14,8 +14,8 @@ import {SERVER_IP, SERVER_PORT} from "./Config.js";
 
 export default function ProfileHeader(props) {
 
-  const handlePostClick = () => {
-	console.log("the user clicked post");
+  const handleSettingsClick = () => {
+        console.log("the user clicked the user settings page");
 
   }
  
@@ -41,12 +41,20 @@ export default function ProfileHeader(props) {
 				<a href={`/create_new_post?username=${props.user.username}`} 
 					style={{display: "inline-flex", width: "100%", height: "100%", margin: "auto auto", textDecoration: "none"}}>
 		  		<Button variant="outlined" 
-		  			onClick={handlePostClick} 
 	  				style={{width: "30%", height: "35%", margin: "auto auto"}}
 	 			>
 	  				<h3> Post </h3>
 	  			</Button>	
 				</a>
+			        <a href={`/edit_user_settings?username=${props.user.username}`}
+                                        style={{display: "inline-flex", width: "100%", height: "100%", margin: "auto auto", textDecoration: "none"}}>
+                                <Button variant="outlined"
+                                        style={{width: "30%", height: "35%", margin: "auto auto"}}
+                                >
+                                        <h3> Settings </h3>
+                                </Button>
+                                </a>
+
 			</div>
 	  		:
 			<div />
