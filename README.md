@@ -2,7 +2,7 @@
 This is a fun imitation of Instagram. It uses a Dockerized database, a set of FastAPI endpoints, and a React Frontend. 
 
 # Results
-
+[Browsing the site](https://github.com/PeterJochem/YetAnotherPhotoSharingApp/blob/main/media/first_use.mp4)
 
 
 # Running the App
