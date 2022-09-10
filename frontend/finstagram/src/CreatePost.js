@@ -53,8 +53,6 @@ export default function CreatePost(props) {
 	     	{method: "POST", body: formData,
 		}).then(response => response.json())
         .then(function (response) {
-          console.log('response')
-          console.log(response)
             });
   
   	redirect_to_view_of_users_page()

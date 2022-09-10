@@ -77,7 +77,6 @@ export default function EditUserSettings(props) {
     }
     
    function attempt_change_password() {
-   	console.log("User is trying to change his/her password.");	
    	if (isPasswordLegal) {
 		snackBarMessage = "Successfully changed password";
 		snackBarSeverity = "success";

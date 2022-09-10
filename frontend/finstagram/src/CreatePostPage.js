@@ -38,7 +38,7 @@ class CreatePostPage extends React.Component {
 		 <LoadingPage />
 		 :
 		 <div>
-			<ProfileHeader a={console.log(this.state.user)} user={this.state.user} can_post={true} /> 
+			<ProfileHeader user={this.state.user} can_post={true} /> 
 			
 		 	<div style = {{ display: 'flex',
                          justifyContent: 'center',

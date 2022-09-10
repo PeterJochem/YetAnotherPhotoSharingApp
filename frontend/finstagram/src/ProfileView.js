@@ -72,7 +72,6 @@ class ProfileView extends React.Component {
                 method: "POST",
                 headers: {'Content-Type': 'application/json'},
                 }).then(res => {
-                console.log("Request to delete post from database completed!");
         });
   }
 

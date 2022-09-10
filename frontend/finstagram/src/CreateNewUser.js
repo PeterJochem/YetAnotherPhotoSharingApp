@@ -39,7 +39,6 @@ export default function CreateNewUser(props) {
 
     async function is_username_legal(username) {
  
-	console.log(username);
         let url = `http://${SERVER_IP}:${SERVER_PORT}/is_username_taken?username=${username}`; 
         await fetch(url).then(response => response.json()).then((json) => {
                        	setIsUsernameLegal(!json);
@@ -68,7 +67,6 @@ export default function CreateNewUser(props) {
                 headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify(user_params)
                 }).then(res => {
-                console.log("Request to add new user completed!"); // I should check the return value here
         });
     }
 
@@ -82,9 +80,6 @@ export default function CreateNewUser(props) {
 	if (isUsernameLegal && isPasswordLegal) {
 		write_new_user_to_db();
 		setTimeout(redirect_to_new_users_page, 2000);
-	}
-	else {
-		console.log("Not creating new user because the input data is not legal.");
 	}
     }
    

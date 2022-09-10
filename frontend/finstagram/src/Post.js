@@ -60,7 +60,6 @@ export default function Post(props) {
   		method: "POST",
  	 	headers: {'Content-Type': 'application/json'}, 
 		}).then(res => {
-	  	console.log("Request to add comment to database completed!");
 	});
   }
   
@@ -71,7 +70,6 @@ export default function Post(props) {
                 method: "POST",
                 headers: {'Content-Type': 'application/json'},
                 }).then(res => {
-                console.log("Request to add like to database completed!");
         });
   }
  
@@ -81,7 +79,6 @@ export default function Post(props) {
                 method: "POST",
                 headers: {'Content-Type': 'application/json'},
                 }).then(res => {
-                console.log("Request to add like to database completed!");
         });
   }
 
@@ -92,7 +89,6 @@ export default function Post(props) {
                 method: "POST",
                 headers: {'Content-Type': 'application/json'},
                 }).then(res => {
-                console.log("Request to add follower to database completed!");
         });
   }
 

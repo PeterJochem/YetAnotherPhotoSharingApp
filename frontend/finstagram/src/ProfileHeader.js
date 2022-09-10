@@ -92,10 +92,6 @@ const ResponsiveAppBar = (props) => {
   
   const handleSearchChange = (event) => {
         setSearchText(event.target.value);
-	console.log(searchText);
-	if (event.target.value.includes('a')) {
-		console.log("Re-direct to the search results");
-	}
   };
 
 
@@ -214,8 +210,8 @@ const ResponsiveAppBar = (props) => {
             >
              
 	  {getUserSettings(props.user).map((setting, index) => (
-		<a href={setting[1]} style={{textDecoration: 'none', color: "inherit"}}> 
-                	<MenuItem key={index} onClick={handleCloseUserMenu}>
+		<a href={setting[1]} key={index} style={{textDecoration: 'none', color: "inherit"}}> 
+                	<MenuItem onClick={handleCloseUserMenu}>
                   	  <Typography textAlign="center">{setting[0]}</Typography>
                 	</MenuItem>
 		</a>
