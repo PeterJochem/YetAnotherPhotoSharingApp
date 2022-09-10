@@ -15,20 +15,49 @@ import CardActions from '@mui/material/CardActions';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
 import $ from 'jquery';
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
+let snackBarMessage = "";
+let snackBarSeverity = "success";
 
 export default function Login(props) {
 
     const [username, setUsername] = React.useState('');
     const [isUsernameLegal, setIsUsernameLegal] = React.useState(false);
     const [password, setPassword] = React.useState('');
+    const [displayPassword, setDisplayPassword] = React.useState('');
     const [isPasswordLegal, setIsPasswordLegal] = React.useState(false);
-    
+    const [snackOpen, setSnackOpen] = React.useState(false);
+
+    const handleSnackClick = () => {
+        setSnackOpen(true);
+  };
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackOpen(false);
+  };
+
+
     const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUsername(event.target.value);
     };
 
     const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-       setPassword(event.target.value);
+        let displayString = "*".repeat(event.target.value.length);
+	setDisplayPassword(displayString);
+	setPassword(password + event.target.value[event.target.value.length - 1]);
+	console.log(password);
     };
 
     React.useEffect(() => { 
@@ -58,7 +87,13 @@ export default function Login(props) {
     function redirect_to_users_feed(username) {
 	window.location = `http://localhost:3000/feed?username=${username}`; 
     }
-
+    
+    
+    function display_failed_login_message() {
+	snackBarMessage = "Failed to Login";
+        snackBarSeverity = "error";
+	setSnackOpen(true);
+    }
     
     async function attempt_login() {
 	
@@ -67,6 +102,9 @@ export default function Login(props) {
                         if (json) {
 				redirect_to_users_feed(username);
 			}
+			else {
+				display_failed_login_message();
+			}
                 }
         );
     }
@@ -74,7 +112,9 @@ export default function Login(props) {
 	return <div style = {{ display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center'
-               }}>
+		}}>
+		
+		<div>
 
 		<Card sx={{ maxWidth: 445 }} style={{paddingTop: "0%"}}>
 
@@ -103,7 +143,7 @@ export default function Login(props) {
          	label="password"
           	multiline
           	maxRows={4}
-         	value={password}
+         	value={displayPassword}
           	onChange={handlePasswordChange}
           	sx={{width: "100%"}}
           />
@@ -116,5 +156,16 @@ export default function Login(props) {
 		</Typography>
       </CardContent>
 	</Card>
-	</div>
+ 
+   <Stack spacing={2} sx={{ width: '100%' }}>
+      <Snackbar open={snackOpen} autoHideDuration={1000} onClose={handleSnackClose}>
+
+        <Alert onClose={handleSnackClose} severity={snackBarSeverity} sx={{ width: '100%' }}>
+          {snackBarMessage}
+        </Alert>
+      </Snackbar>
+    </Stack>
+   </div>
+
+ </div>
 }

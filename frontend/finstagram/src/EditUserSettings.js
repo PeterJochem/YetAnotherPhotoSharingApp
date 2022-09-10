@@ -52,12 +52,12 @@ export default function EditUserSettings(props) {
     if (!fileObj) {
       return;
     }
-    
+
     setAvatarImageFile(fileObj);
     event.target.value = null;
-    setTimeout(write_image_to_server, 3000);
-   };
- 
+    write_image_to_server();
+  }
+
 
     const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
        setPassword(event.target.value);
