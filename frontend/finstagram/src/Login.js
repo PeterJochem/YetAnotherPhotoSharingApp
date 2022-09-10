@@ -67,7 +67,6 @@ export default function Login(props) {
 
     async function is_username_legal(username) {
  
-	console.log(username);
         let url = `http://${SERVER_IP}:${SERVER_PORT}/is_username_taken?username=${username}`; 
         await fetch(url).then(response => response.json()).then((json) => {
                        	setIsUsernameLegal(!json);

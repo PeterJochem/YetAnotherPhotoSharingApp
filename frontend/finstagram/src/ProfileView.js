@@ -101,7 +101,7 @@ class ProfileView extends React.Component {
   render() {
     return (
       <div>
-	 {this.state.viewer != null ? <ProfileHeader user={this.state.viewee} can_post={this.state.can_post} /> : <LoadingPage /> }
+	 {this.state.viewer != null ? <ProfileHeader user={this.state.viewer} can_post={this.state.can_post} /> : <LoadingPage /> }
 	 
 	 <div style = {{ display: 'flex',
                          justifyContent: 'center',
