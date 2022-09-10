@@ -51,7 +51,7 @@ def does_user_exist(username: str) -> bool:
 
 @app.post("/create_user_table", status_code=200)
 def create_user_table():
-    """ Create the user table """
+    """ Create the user table. This defines the tabe's schema """
     
     connection = engine.connect()
     metadata = db.MetaData()
@@ -69,7 +69,7 @@ def create_user_table():
 
 @app.post("/create_following_table", status_code=200)
 def create_following_table():
-    """ Create the following table """
+    """ Create the following table. This defines the table's schema """
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -86,7 +86,7 @@ def create_following_table():
 
 @app.post("/create_post_table", status_code=200)
 def create_post_table():
-    """ Create the post table """
+    """ Create the post table. This defines the table's schema"""
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -106,7 +106,7 @@ def create_post_table():
 
 @app.post("/create_comments_table", status_code=200)
 def create_comments_table():
-    """ Create the comments table """
+    """ Create the comments table. This defines the table's schema."""
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -129,7 +129,7 @@ def create_comments_table():
 
 @app.post("/create_likes_table", status_code=200)
 def create_likes_table():
-    """ Create the likes table """
+    """ Create the likes table. This defines the table's schema."""
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -148,7 +148,7 @@ def create_likes_table():
 
 @app.post("/create_all_tables", status_code=200)
 def create_all_tables():
-    """ Create all the tables for the finstagram database """
+    """ Create all the tables for the finstagram database. Defines the entire db schema."""
     
     try:
         create_user_table()
@@ -158,11 +158,6 @@ def create_all_tables():
         create_following_table()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server failed to create tables: {e}")
-
-
-# Above are functions to define and create the database
-#############################
-# Below are functions to query and change the database
 
 @app.post("/create_new_user", status_code=200)
 def create_new_user(new_user: User):
@@ -187,7 +182,6 @@ def create_new_user(new_user: User):
     query = db.insert(user).values(username=username, password=password, avatar_url=avatar_url) 
     connection.execute(query)
 
-# FIX Me - should this be a patch?
 @app.post("/set_avatar", status_code=200)
 async def update_users_avatar(image_file: UploadFile, username: str):
     """  Upload and set a user's avatar to new image
@@ -245,8 +239,15 @@ async def post(image_file: UploadFile, username: str, caption: str):
     connection.execute(query)
 
 
-def get_username_of_from_post_id(post_id: int):
-    """ """
+def get_username_of_from_post_id(post_id: int) -> str:
+    """ Get the username of a post given the post_id
+        
+        Args:
+            post_id (int): Primary key of post in the db
+    
+        Returns:
+            username of user who made the post with post_id
+    """
     
     connection = engine.connect()
     metadata = db.MetaData()
