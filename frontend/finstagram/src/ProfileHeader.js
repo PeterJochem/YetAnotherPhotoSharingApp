@@ -61,6 +61,15 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+async function getUsers() {
+	let url = `http://${SERVER_IP}:${SERVER_PORT}/get_all_users`; 
+        let response = await fetch(url);
+        let users = await response.json();
+	localStorage.setItem("users", JSON.stringify(users));
+};
+
+getUsers();
+
 const ResponsiveAppBar = (props) => {
   const [headerAnchorElNav, setHeaderAnchorElNav] = React.useState(null);
   const [headerAnchorElUser, setHeaderAnchorElUser] = React.useState(null);
@@ -82,8 +91,8 @@ const ResponsiveAppBar = (props) => {
   };
   
   const handleSearchChange = (event) => {
-        console.log(event.target.value);
         setSearchText(event.target.value);
+	console.log(searchText);
 	if (event.target.value.includes('a')) {
 		console.log("Re-direct to the search results");
 	}
@@ -217,7 +226,7 @@ const ResponsiveAppBar = (props) => {
         </Toolbar>
       </Container>
     </AppBar>
-    <SearchResults searchQuery={searchText} viewer={props.user.username}/>
+    <SearchResults searchQuery={searchText} users={JSON.parse(localStorage.getItem("users"))} viewer={props.user.username}/>
   </React.Fragment>
 	   );
 };

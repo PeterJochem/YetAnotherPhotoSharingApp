@@ -18,26 +18,13 @@ const filterUsers = (query, users) => {
 };
 
 function getProfileViewUrl(viewer_username, viewee_user) {
-	
 	return `http://localhost:3000/profile_view?viewer_username=${viewer_username}&viewee_username=${viewee_user.username}`; 
-
 }
 
 export default function Search(props) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [users, setUsers] = useState();
-  const filteredUsers = filterUsers(props.searchQuery, users);
+  const filteredUsers = filterUsers(props.searchQuery, props.users);
 	
-  async function getUsers() {
-
-        let url = `http://${SERVER_IP}:${SERVER_PORT}/get_all_users`; 
-        let response = await fetch(url);
-        let users = await response.json();
-        setUsers(users);
-};
-
-  getUsers();
-
   return (<React.Fragment > { (props.searchQuery != null && props.searchQuery != "") ? <React.Fragment>
     <div
       style={{
