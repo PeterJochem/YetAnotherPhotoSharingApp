@@ -27,7 +27,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 
 export default function EditUserSettings(props) {
-
    const [avatarImagefile, setAvatarImageFile] = React.useState('');
    const [password, setPassword] = React.useState('');
    const [isPasswordLegal, setIsPasswordLegal] = React.useState(false);
@@ -163,7 +162,6 @@ export default function EditUserSettings(props) {
     >
       Change Avatar Image
     </Button>	
-
 		</Typography>
       </CardContent>
 	</Card>

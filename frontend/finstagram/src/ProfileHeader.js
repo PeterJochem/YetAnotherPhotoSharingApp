@@ -1,66 +1,150 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Avatar from '@mui/material/Avatar';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import ShareIcon from '@material-ui/icons/Share';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import MenuItem from '@mui/material/MenuItem';
-import { Divider, Grid, Paper } from "@material-ui/core";
+import Menu from '@mui/material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
+import CameraIcon from '@mui/icons-material/Camera';
 import {SERVER_IP, SERVER_PORT} from "./Config.js";
 
-export default function ProfileHeader(props) {
-
-  const handleSettingsClick = () => {
-        console.log("the user clicked the user settings page");
-
-  }
+const ResponsiveAppBar = (props) => {
+  const [headerAnchorElNav, setHeaderAnchorElNav] = React.useState(null);
+  const [headerAnchorElUser, setHeaderAnchorElUser] = React.useState(null);
  
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setHeaderAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setHeaderAnchorElUser(event.currentTarget);
+  };
 
+  const handleCloseNavMenu = () => {
+    setHeaderAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setHeaderAnchorElUser(null);
+  };
+
+  const getUserSettings = (user) => {
+	let settings = [];
+        
+	let profile_url = `http://localhost:3000/profile_view?viewer_username=${props.user.username}&viewee_username=${props.user.username}`;
+        let settings_url = `http://localhost:3000/edit_user_settings?username=${props.user.username}`;
+        let login_url = `http://localhost:3000/login`;
+	let feed_url = `http://localhost:3000/feed?username=${props.user.username}`;
+
+	settings.push(["Feed", feed_url]);
+	settings.push(["Profile", profile_url]);
+        settings.push(["Settings", settings_url]);
+	settings.push(["Logout", login_url]);
+
+	return settings;
+  }
+
+ 
   return (
-	  <Paper elevation={16} style={{padding: "0%", margin: "0%", display: "inline-flex",
-			  		height: "15vh", width: "100vw",
-	  			}} >
-		
-	  	<div style={{width: "33%", display: "inline-flex" }}>
-	  		<div style={{display: "flex", margin: "auto auto"}}>
-	  			<Avatar alt="username" src={props.user.avatar_url}  sx={{height: 100, width: 100}}/>
-	  		</div>
-	  	</div>	
+    <AppBar position="static">
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          <CameraIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href={`http://localhost:3000/feed?username=${props.user.username}`}
+	    sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '.3rem',
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
+            FInstagram
+          </Typography>
 
-	  	<div style={{width: "33.3%", display: "inline-flex" }}>
-	  		<h1 style={{fontSize: "5vw", margin: "auto auto"}}> {props.user.username} </h1>
-	  	</div>
-	  	
-	  	{props.can_post ?
-			<div style={{width: "33.3%", display: "inline-flex"}} >
-				
-				<a href={`/create_new_post?username=${props.user.username}`} 
-					style={{display: "inline-flex", width: "100%", height: "100%", margin: "auto auto", textDecoration: "none"}}>
-		  		<Button variant="outlined" 
-	  				style={{width: "30%", height: "35%", margin: "auto auto"}}
-	 			>
-	  				<h3> Post </h3>
-	  			</Button>	
-				</a>
-			        <a href={`/edit_user_settings?username=${props.user.username}`}
-                                        style={{display: "inline-flex", width: "100%", height: "100%", margin: "auto auto", textDecoration: "none"}}>
-                                <Button variant="outlined"
-                                        style={{width: "30%", height: "35%", margin: "auto auto"}}
-                                >
-                                        <h3> Settings </h3>
-                                </Button>
-                                </a>
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={headerAnchorElNav}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              open={Boolean(headerAnchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: 'block', md: 'none' },
+              }}
+            >
+            </Menu>
+          </Box>
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          </Box>
 
-			</div>
-	  		:
-			<div />
-		}
-		
-	
-	  </Paper>
-  	 )
-}
+          <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt={props.user.username} src={props.user.avatar_url} />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={headerAnchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(headerAnchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+             
+	  {getUserSettings(props.user).map((setting, index) => (
+		<a href={setting[1]} style={{textDecoration: 'none', color: "inherit"}}> 
+                	<MenuItem key={index} onClick={handleCloseUserMenu}>
+                  	  <Typography textAlign="center">{setting[0]}</Typography>
+                	</MenuItem>
+		</a>
+              ))}
+	   
+	  
+	  
+	  </Menu>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
+  );
+};
+export default ResponsiveAppBar;

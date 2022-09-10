@@ -70,18 +70,17 @@ class Feed extends React.Component {
   delete_post = (post_id) => {
 	this.delete_post_locally(post_id);
 	this.delete_post_from_database(post_id)
-
-	 // decrement the index?
   }
 
   render() {
-    return (
-      <div style = {{ display: 'flex',
+    return (<React.Fragment>
+      
+	{this.state.viewer != null ? <ProfileHeader user={this.state.viewer} can_post={true} /> : <LoadingPage /> }    
+	<div style = {{ display: 'flex',
                       justifyContent: 'center',
-                      alignItems: 'center'
+                      alignItems: 'center',
                }}>
 
-	{this.state.viewer != null ? <ProfileHeader user={this.state.viewer} can_post={true} /> : <LoadingPage /> }	
         
 	<InfiniteScroll
           dataLength={this.state.items.length}
@@ -108,6 +107,7 @@ class Feed extends React.Component {
 	  }
         </InfiniteScroll>
       </div>
+      </React.Fragment>
     );
   }
 }
