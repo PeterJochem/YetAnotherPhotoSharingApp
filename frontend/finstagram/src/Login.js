@@ -18,7 +18,11 @@ import $ from 'jquery';
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -32,7 +36,7 @@ export default function Login(props) {
     const [username, setUsername] = React.useState('');
     const [isUsernameLegal, setIsUsernameLegal] = React.useState(false);
     const [password, setPassword] = React.useState('');
-    const [displayPassword, setDisplayPassword] = React.useState('');
+    const [displayPassword, setDisplayPassword] = React.useState(false);
     const [isPasswordLegal, setIsPasswordLegal] = React.useState(false);
     const [snackOpen, setSnackOpen] = React.useState(false);
 
@@ -94,7 +98,11 @@ export default function Login(props) {
         snackBarSeverity = "error";
 	setSnackOpen(true);
     }
-    
+     
+    function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+      setPassword(event.target.value);
+    };
+
     async function attempt_login() {
 	
     	let url = `http://${SERVER_IP}:${SERVER_PORT}/login?username=${username}&password=${password}`;
@@ -137,18 +145,28 @@ export default function Login(props) {
           	sx={{width: "100%"}}
 	/>
 	
-	  <div style={{paddingTop: "5%"}}/> 
-	  <TextField
-          	id="outlined-multiline-flexible"
-         	label="password"
-          	multiline
-          	maxRows={4}
-         	value={displayPassword}
-          	onChange={handlePasswordChange}
-          	sx={{width: "100%"}}
+		
+	<InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+          <OutlinedInput
+            id="outlined-adornment-password"
+            type={displayPassword ? 'text' : 'password'}
+            value={password}
+            onChange={handlePasswordChange}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={() => {setDisplayPassword(!displayPassword)} }
+                  edge="end"
+                >
+                  { displayPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Password"
           />
-	
 
+	  <div style={{paddingTop: "5%"}}/> 
           <Button onClick={attempt_login}>
                 <SendIcon sx={{color: "blue"}} />
           </Button>
