@@ -40,8 +40,10 @@ const ResponsiveAppBar = (props) => {
         let settings_url = `http://localhost:3000/edit_user_settings?username=${props.user.username}`;
         let login_url = `http://localhost:3000/login`;
 	let feed_url = `http://localhost:3000/feed?username=${props.user.username}`;
+	let create_post_url = `http://localhost:3000/create_new_post?username=${props.user.username}`;
 
 	settings.push(["Feed", feed_url]);
+	settings.push(["Create Post", create_post_url]);
 	settings.push(["Profile", profile_url]);
         settings.push(["Settings", settings_url]);
 	settings.push(["Logout", login_url]);

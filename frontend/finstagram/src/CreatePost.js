@@ -38,7 +38,7 @@ export default function CreatePost(props) {
   };
 
   function redirect_to_view_of_users_page() {
-	 window.location = `http://${SERVER_IP}:${SERVER_PORT}/profile_view?viewer_username=${props.user.username}&viewee_username=${props.user.username}`;
+	 window.location = `http://localhost:3000/profile_view?viewer_username=${props.user.username}&viewee_username=${props.user.username}`;
   }
  
   async function addNewPost() {
