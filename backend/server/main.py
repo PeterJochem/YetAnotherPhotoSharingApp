@@ -190,10 +190,11 @@ def create_new_user(new_user: User):
 # FIX Me - should this be a patch?
 @app.post("/set_avatar", status_code=200)
 async def update_users_avatar(image_file: UploadFile, username: str):
-    """ Set a user's avatar
+    """  Upload and set a user's avatar to new image
         
         Args:
-            FIX ME 
+            image_file: Image for avatar
+            username (str): the users username
     """
 
     if not does_user_exist(username):
@@ -254,10 +255,14 @@ def get_username_of_from_post_id(post_id: int):
 
 @app.post("/comment", status_code=200)
 def comment(post_id: int, commenter_username: str, text: str):
-    """ Docstring here """
-    # FIX ME - check the inputs
+    """ Add comment to a post 
     
-    # Insert a comment entry into the database
+        Args:
+            post_id (int) - Primary key of post in db
+            commenter_uername (str) - Username of commenter
+            text (str) - The comment itself 
+    """
+     
     connection = engine.connect()
     metadata = db.MetaData()
     comments = db.Table('comments', metadata, autoload=True, autoload_with=engine)
@@ -275,7 +280,12 @@ def comment(post_id: int, commenter_username: str, text: str):
 
 @app.post("/follow", status_code=200)
 def follow(follower_username: str, followee_username: str):
-    """ """
+    """ Set one user to follow the other
+    
+        Args:
+            follower_username (str): the user who is following
+            followee_username (str): the user is now followed
+    """
     
     connection = engine.connect()
     metadata = db.MetaData()
@@ -285,7 +295,12 @@ def follow(follower_username: str, followee_username: str):
 
 @app.post("/like", status_code=200)
 def like(username: str, post_id: int):
-    """ ... """
+    """ Have user with username like post with post_id
+    
+        Args:
+            username (str): Name of user liking post
+            post_id (str): Primary key of post in db
+    """
         
     connection = engine.connect()
     metadata = db.MetaData()
@@ -295,7 +310,12 @@ def like(username: str, post_id: int):
    
 @app.post("/unlike", status_code=200)
 def unlike(username: str, post_id: int):
-    """ ... """
+    """ Unlike post with post_id for user with username 
+    
+        Args:
+            username (str): username of user unliking post 
+            post_id (int):  primary key of post in db
+    """
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -305,7 +325,11 @@ def unlike(username: str, post_id: int):
 
 @app.post("/delete_post")
 def delete_post(post_id: int):
-    """ Delete the post with the given post_id """
+    """ Delete the post with the given post_id 
+        
+        Args:
+            post_id (int) - Primary key of post in db
+    """
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -336,14 +360,17 @@ def get_all_users() -> List[User]:
             user["followers"] = followers
     
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=500, detail=f"Failed to get a list of all the users: {e}")
     
     return users
 
 @app.get("/get_users_avatar_url", status_code=200)
 def get_users_avatar_url(username: str) -> str:
-    """ Docstring here """
+    """ Get avatar_url for the user with username 
+    
+        Args:
+            username (str): user's username that we want avatar url for 
+    """
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -358,7 +385,15 @@ def get_users_avatar_url(username: str) -> str:
     return results[0][0]
 
 def does_user_like_post(username: str, post_id: int) -> bool:
-    """ ... """
+    """ Check if user with username like post with post_id
+    
+        Args:
+            username (str): username of user who we check for liking post 
+            post_id (int): primary key of post in db
+
+        Returns:
+            True if user likes post. False otherwise
+    """
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -370,7 +405,14 @@ def does_user_like_post(username: str, post_id: int) -> bool:
     
 
 def get_comments(post_id: int) -> List[Comment]:
-    """ """
+    """ Get list of comments for post with post_id
+    
+        Args:
+            post_id (int): Primary key of post in db
+
+        Returns:
+            List of comments
+    """
     
     connection = engine.connect()
     metadata = db.MetaData()    
@@ -390,13 +432,14 @@ def get_comments(post_id: int) -> List[Comment]:
 
 @app.get("/get_posts_made_by_user", status_code=200)
 def get_posts_made_by_user(viewee_username: str, viewer_username: str) -> List[PostView]:
-    """ Get the posts made by the user with the given username
+    """ Get the posts made by the user with viewee_username as viewed by viewer_username
         
         Args:
-            username (str) - username of finstagram user
+            viewee_username (str): username of user whose posts are being viewed
+            viewer_username (str): username of user who is trying to view posts
 
         Returns:
-            List[Post] - all the posts made by the user
+            List[PostView] - all the posts made by the user as viewed by viewer
     """
     
     connection = engine.connect()
@@ -422,16 +465,15 @@ def get_posts_made_by_user(viewee_username: str, viewer_username: str) -> List[P
 
 @app.get("/get_posts_by_id", status_code=200)
 def get_posts_by_id(viewer_username: str, post_id: int) -> List[PostView]:
-    """ 
+    """ Get post data from its primary key id in db filtered by who is viewing it
 
         Args:
-            username (str) - username of finstagram user
+            viewer_username (str): username of finstagram user
+            post_id (int): primary key of post in db 
 
         Returns:
-            List[Post] - all the posts made by the user
+            List[PostView] - all the posts made by the 
     """
-
-    print(f"{viewer_username}, {post_id}")
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -441,7 +483,7 @@ def get_posts_by_id(viewer_username: str, post_id: int) -> List[PostView]:
     result = connection.execute(query).fetchall()
 
     if len(result) == 0:
-        raise Exception() 
+        raise Exception(f"No posts found with id {post_id}") 
 
     post_id, poster_username, date, image_url, caption = result[0]
     avatar_url = get_users_avatar_url(poster_username)
@@ -457,7 +499,14 @@ def get_posts_by_id(viewer_username: str, post_id: int) -> List[PostView]:
 
 @app.get("/following", status_code=200)
 def get_following(username: str) -> List[str]:
-    """ Get a list of usernames of people who follow the given user"""
+    """ Get all usernames who follow the given user
+    
+        Args:
+            username (str): Usersname of whom we want to know following
+
+        Returns:
+            List[str] - List of usernames who follow the given user
+    """
     
     connection = engine.connect()
     metadata = db.MetaData()
@@ -469,7 +518,15 @@ def get_following(username: str) -> List[str]:
 
 @app.get("/followee", status_code=200)
 def get_followees(username: str) -> List[str]:
-    """ Get a list of usernames of people who the given user follows"""
+    """ Get list of usernames that username follows
+        
+        Args:
+            username (str): User for which we want to know followees
+            
+        Returns:
+            List[str]: List of usernames that the user follows
+            
+    """
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -482,12 +539,13 @@ def get_followees(username: str) -> List[str]:
     
 @app.get("/get_followed_posts", status_code=200)
 def get_followed_posts(username: str) -> List[PostView]:
-    """ 
+    """ Get a list of posts that make up a users feed 
+
         Args:
             username (str) - username of finstagram user
 
         Returns:
-            List[PostViews] - all the posts from the users that the use follows
+            List[PostViews] - all the posts from users which the user follows
     """
 
     connection = engine.connect()
@@ -513,10 +571,16 @@ def get_followed_posts(username: str) -> List[PostView]:
     return sorted(post_views, key = lambda post_view: post_view['post']['date'], reverse=True)
     
 
-
 @app.get("/get_user", status_code=200)
 def get_user(username: str) -> User:
-    """ """
+    """ Get a users details from his/her username
+    
+        Args:
+            username (str): Username of a user
+
+        Returns:
+            User: Details about user with username
+    """
 
     connection = engine.connect()
     metadata = db.MetaData()
@@ -535,17 +599,28 @@ def get_user(username: str) -> User:
     return results[0]
 
     
-
 @app.get("/get_image", status_code=200)
 def get_image(image_name: str):
-    
-    # FIX ME - check if the file exists
+    """Get image from its name on the server's storage
+        
+        Args:
+            image_name (str): Name of image in the database
+
+        Returns:    
+            FastAPI FileResponse for the image
+    """
+
     file_path = f"{IMAGE_DIR}{image_name}"
     return FileResponse(file_path)
 
 
 @app.get("/get_all_comments", status_code=200)
-def get_all_comments():
+def get_all_comments() -> List[Comment]:
+    """Get a list of all the comments in the entire database
+    
+        Returns:
+            List[Comment] - all the comments in the database
+    """
     
     connection = engine.connect()
     metadata = db.MetaData()
@@ -577,11 +652,10 @@ def is_password_legal(password: str) -> bool:
     """ Check if the password is at least 6 charachters
         
         Args:
-            password (str) - 
+            password (str) - a proposed password
 
         Returns:
-            bool - 
-         
+            bool - True if the password is legal. False otherwise
     """
 
     min_length_password = 5
@@ -609,5 +683,3 @@ def login(username: str, password: str) -> bool:
     
     user = get_user(username)
     return user["password"] == password
-
-
