@@ -150,8 +150,9 @@ export default function Login(props) {
           <OutlinedInput
             id="outlined-adornment-password"
             type={displayPassword ? 'text' : 'password'}
-            value={password}
-            onChange={handlePasswordChange}
+	    value={password}
+            InputLabel="Password"
+	    onChange={handlePasswordChange}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
