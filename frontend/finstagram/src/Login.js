@@ -58,10 +58,7 @@ export default function Login(props) {
     };
 
     const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        let displayString = "*".repeat(event.target.value.length);
-	setDisplayPassword(displayString);
-	setPassword(password + event.target.value[event.target.value.length - 1]);
-	console.log(password);
+	setPassword(event.target.value);
     };
 
     React.useEffect(() => { 
@@ -160,7 +157,7 @@ export default function Login(props) {
                   onClick={() => {setDisplayPassword(!displayPassword)} }
                   edge="end"
                 >
-                  { displayPassword ? <VisibilityOff /> : <Visibility />}
+                  { displayPassword ? <Visibility /> : <VisibilityOff />}
                 </IconButton>
               </InputAdornment>
             }

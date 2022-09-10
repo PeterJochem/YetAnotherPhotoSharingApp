@@ -4,6 +4,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Post from './Post.js';
 import CircularProgress from '@mui/material/CircularProgress';
 import {SERVER_IP, SERVER_PORT} from "./Config.js"; 
+import ProfileHeader from "./ProfileHeader.js";
+import LoadingPage from './LoadingPage.js';
 
 class Feed extends React.Component {
   constructor() {
@@ -78,8 +80,10 @@ class Feed extends React.Component {
                       justifyContent: 'center',
                       alignItems: 'center'
                }}>
-	
-        <InfiniteScroll
+
+	{this.state.viewer != null ? <ProfileHeader user={this.state.viewer} can_post={true} /> : <LoadingPage /> }	
+        
+	<InfiniteScroll
           dataLength={this.state.items.length}
           next={this.fetchMorePosts}
           hasMore={this.display_index < this.fetched_posts.length}
